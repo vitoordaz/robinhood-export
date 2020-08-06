@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/vitoordaz/robinhood-export/internal/robinhood"
+	"github.com/vitoordaz/robinhood-export/internal/utils"
 	"io"
 	"io/ioutil"
 	"os"
@@ -63,7 +64,7 @@ func doPositions(args arguments) {
 }
 
 func getPositionsInstrumentIds(positions []*robinhood.Position) []string {
-	return getIds(positions, func(position interface{}) string {
+	return utils.GetIDs(positions, func(position interface{}) string {
 		return position.(*robinhood.Position).Instrument
 	})
 }
@@ -73,17 +74,18 @@ func loadPositions(
 	client robinhood.Client,
 	token *robinhood.ResponseToken,
 ) ([]*robinhood.Position, error) {
-	positions, err := loadList(ctx, func(c context.Context, cursor string) (interface{}, string, error) {
-		result, err := client.GetPositions(ctx, token, cursor)
-		if err != nil {
-			return nil, "", err
+	positions := make([]*robinhood.Position, 0)
+	err := utils.LoadList(ctx, &positions, func(c context.Context, cursor string) (interface{}, string, error) {
+		result, er := client.GetPositions(c, token, cursor)
+		if er != nil {
+			return nil, "", er
 		}
 		return result.Results, result.Next, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return positions.([]*robinhood.Position), nil
+	return positions, nil
 }
 
 func outputPositions(

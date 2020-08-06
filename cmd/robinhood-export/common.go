@@ -3,31 +3,11 @@ package main
 import (
 	"context"
 	"github.com/vitoordaz/robinhood-export/internal/robinhood"
+	"github.com/vitoordaz/robinhood-export/internal/utils"
 	"sync"
 )
 
-type (
-	listLoadFunc func(ctx context.Context, cursor string) (interface{}, string, error)
-	itemLoadFunc func(ctx context.Context, id string) (interface{}, error)
-	getIdFunc    func(interface{}) string
-)
-
-// loadList iterates over results of a given load function until cursor will not become empty.
-func loadList(ctx context.Context, loadFunc listLoadFunc) (interface{}, error) {
-	var result []interface{}
-	cursor := ""
-	for {
-		items, cursor, err := loadFunc(ctx, cursor)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, items.([]interface{})...)
-		if cursor == "" {
-			break
-		}
-	}
-	return result, nil
-}
+type itemLoadFunc func(ctx context.Context, id string) (interface{}, error)
 
 const maxConcurrency = 10
 
@@ -77,21 +57,8 @@ func loadDetails(ctx context.Context, ids []string, loadFunc itemLoadFunc) ([]in
 	return items, nil
 }
 
-func getIds(items interface{}, idFunc getIdFunc) []string {
-	set := map[string]bool{}
-	var ids []string
-	for _, item := range items.([]interface{}) {
-		id := idFunc(item)
-		if !set[id] {
-			ids = append(ids, id)
-			set[id] = true
-		}
-	}
-	return ids
-}
-
 func getInstrumentsMarketIds(instruments []*robinhood.Instrument) []string {
-	return getIds(instruments, func(instrument interface{}) string {
+	return utils.GetIDs(instruments, func(instrument interface{}) string {
 		return instrument.(*robinhood.Instrument).Market
 	})
 }

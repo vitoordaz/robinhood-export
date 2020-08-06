@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/vitoordaz/robinhood-export/internal/robinhood"
+	"github.com/vitoordaz/robinhood-export/internal/utils"
 	"io"
 	"io/ioutil"
 	"os"
@@ -67,9 +68,10 @@ func loadOrders(
 	client robinhood.Client,
 	token *robinhood.ResponseToken,
 ) ([]*robinhood.Order, error) {
-	orders, err := loadList(ctx, func(c context.Context, cursor string) (interface{}, string, error) {
-		result, err := client.GetOrders(ctx, token, cursor)
-		if err != nil {
+	orders := make([]*robinhood.Order, 0)
+	err := utils.LoadList(ctx, &orders, func(c context.Context, cursor string) (interface{}, string, error) {
+		result, er := client.GetOrders(c, token, cursor)
+		if er != nil {
 			return nil, "", nil
 		}
 		return result.Results, result.Next, nil
@@ -77,11 +79,11 @@ func loadOrders(
 	if err != nil {
 		return nil, err
 	}
-	return orders.([]*robinhood.Order), nil
+	return orders, nil
 }
 
 func getOrdersInstrumentIds(orders []*robinhood.Order) []string {
-	return getIds(orders, func(order interface{}) string {
+	return utils.GetIDs(orders, func(order interface{}) string {
 		return order.(*robinhood.Order).Instrument
 	})
 }
