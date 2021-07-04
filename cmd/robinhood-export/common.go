@@ -25,7 +25,7 @@ func loadInstruments(ctx context.Context, client robinhood.Client, ids []string)
 
 func loadMarkets(ctx context.Context, client robinhood.Client, ids []string) ([]*robinhood.Market, error) {
 	markets := make([]*robinhood.Market, 0, len(ids))
-	err := utils.LoadDetails(ctx, ids, markets, func(ctx context.Context, id string) (interface{}, error) {
+	err := utils.LoadDetails(ctx, ids, &markets, func(ctx context.Context, id string) (interface{}, error) {
 		return client.GetMarket(ctx, id)
 	})
 	if err != nil {
