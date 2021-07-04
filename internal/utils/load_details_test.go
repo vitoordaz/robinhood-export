@@ -2,10 +2,11 @@ package utils
 
 import (
 	"context"
-	"github.com/stretchr/testify/require"
 	"sort"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestLoadDetails(t *testing.T) {

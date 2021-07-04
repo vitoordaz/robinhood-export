@@ -1,9 +1,10 @@
 package utils
 
 import (
-	"github.com/stretchr/testify/require"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetIDs(t *testing.T) {
