@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
-	"github.com/vitoordaz/robinhood-export/internal/robinhood"
-	"github.com/vitoordaz/robinhood-export/internal/utils"
 	"io"
 	"io/ioutil"
 	"os"
+
+	"github.com/vitoordaz/robinhood-export/internal/robinhood"
+	"github.com/vitoordaz/robinhood-export/internal/utils"
 )
 
 func doPositions(args arguments) {
@@ -28,6 +29,9 @@ func doPositions(args arguments) {
 	positions, err := loadPositions(ctx, client, token)
 	if err != nil {
 		logError.Fatalln(err)
+	}
+	if !args.all {
+		positions = getOpenPositions(positions)
 	}
 	logVerbose.Printf("loaded %d positions\n", len(positions))
 
@@ -86,6 +90,17 @@ func loadPositions(
 		return nil, err
 	}
 	return positions, nil
+}
+
+// getOpenPositions filters out closed (quantity == 0) positions from a give slice of positions.
+func getOpenPositions(positions []*robinhood.Position) []*robinhood.Position {
+	result := make([]*robinhood.Position, 0)
+	for _, position := range positions {
+		if isZero, _ := utils.IsZero(position.Quantity); !isZero {
+			result = append(result, position)
+		}
+	}
+	return result
 }
 
 func outputPositions(

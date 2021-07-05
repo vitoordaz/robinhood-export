@@ -5,17 +5,19 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/vitoordaz/robinhood-export/internal/robinhood"
-	"golang.org/x/crypto/ssh/terminal"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/vitoordaz/robinhood-export/internal/robinhood"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type arguments struct {
 	username string // -u, robinhood account username or email
 	output   string // -o, path to output file
 	verbose  bool   // -v, enable verbose messages
+	all      bool   // -a, return everything
 }
 
 var (
@@ -32,6 +34,7 @@ var (
 	positionsCmd         = flag.NewFlagSet("positions", flag.ExitOnError)
 	positionsCmdUsername = positionsCmd.String("u", "", "Robinhood account username or email.") // optional
 	positionsCmdOutput   = positionsCmd.String("o", "", "path to output file.")                 // optional
+	positionsCmdAll      = positionsCmd.Bool("a", false, "return all positions (even closed).") // optional
 	positionsCmdVerbose  = positionsCmd.Bool("v", false, "enable verbose messages.")            // optional
 )
 
@@ -69,6 +72,7 @@ func main() {
 			username: *positionsCmdUsername,
 			verbose:  *positionsCmdVerbose,
 			output:   *positionsCmdOutput,
+			all:      *positionsCmdAll,
 		})
 	default:
 		flag.Usage()
