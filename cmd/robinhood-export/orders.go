@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
-	"github.com/vitoordaz/robinhood-export/internal/robinhood"
-	"github.com/vitoordaz/robinhood-export/internal/utils"
 	"io"
 	"io/ioutil"
 	"os"
+
+	"github.com/vitoordaz/robinhood-export/internal/robinhood"
+	"github.com/vitoordaz/robinhood-export/internal/utils"
 )
 
 func doOrders(args arguments) {

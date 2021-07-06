@@ -2,9 +2,10 @@ package robinhood
 
 import (
 	"context"
+	"strings"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
-	"strings"
 )
 
 const (

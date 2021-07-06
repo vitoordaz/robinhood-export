@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/vitoordaz/robinhood-export/internal/robinhood"
 	"github.com/vitoordaz/robinhood-export/internal/utils"
 )

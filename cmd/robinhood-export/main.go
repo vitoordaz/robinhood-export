@@ -9,8 +9,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/vitoordaz/robinhood-export/internal/robinhood"
 	"golang.org/x/crypto/ssh/terminal"
+
+	"github.com/vitoordaz/robinhood-export/internal/robinhood"
 )
 
 type arguments struct {
@@ -115,7 +116,7 @@ func getAuthToken(
 			fmt.Print("Enter password: ")
 			line, err := terminal.ReadPassword(0)
 			if err != nil {
-				return nil, fmt.Errorf("ERROR: %v", err)
+				return nil, fmt.Errorf("ERROR: %w", err)
 			}
 			password = strings.TrimSpace(string(line))
 			fmt.Println() // NOTE: terminal.ReadPassword doesn't add new line after enter
@@ -134,7 +135,7 @@ func getAuthToken(
 		logVerbose.Println(msg)
 		resp, err = client.GetToken(ctx, username, password, mfa)
 		if err != nil {
-			return
+			return nil, err
 		}
 		if resp.MFARequired {
 			fmt.Print("Enter OTP code: ")
@@ -150,5 +151,5 @@ func getAuthToken(
 		}
 	}
 	logVerbose.Println("Successfully logged in")
-	return
+	return resp, nil
 }
