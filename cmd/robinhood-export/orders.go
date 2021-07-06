@@ -70,9 +70,9 @@ func loadOrders(
 ) ([]*robinhood.Order, error) {
 	orders := make([]*robinhood.Order, 0)
 	err := utils.LoadList(ctx, &orders, func(c context.Context, cursor string) (interface{}, string, error) {
-		result, er := client.GetOrders(c, token, cursor)
-		if er != nil {
-			return nil, "", nil
+		result, err := client.GetOrders(c, token, cursor)
+		if err != nil {
+			return nil, "", err
 		}
 		return result.Results, result.Next, nil
 	})
