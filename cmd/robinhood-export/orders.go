@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	"github.com/vitoordaz/robinhood-export/internal/robinhood"
@@ -14,7 +13,7 @@ import (
 
 func doOrders(args arguments) {
 	if !args.verbose {
-		logVerbose.SetOutput(ioutil.Discard) // disable verbose logging
+		logVerbose.SetOutput(io.Discard) // disable verbose logging
 	}
 
 	ctx := context.Background()
