@@ -1,16 +1,16 @@
 name: Test
-on:
-  push:
+on: 
+  push: 
     branches: [mainline]
-jobs:
-  ci:
+jobs: 
+  ci: 
     runs-on: ubuntu-latest
-    steps:
+    steps: 
       - name: Set up Go 1.x
-        uses: actions/setup-go@v2
-        with:
-          go-version: '^1.13.1'
+        uses: actions/setup-go@v4
+        with: 
+          go-version: '1.21'
       - name: Checkout codebase
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Test
         run: go test -timeout 1h -v ./...
