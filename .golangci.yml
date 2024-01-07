@@ -1,8 +1,9 @@
-linters:
+linters: 
   enable-all: true
-  disable:
+  disable: 
     - cyclop
     - exhaustivestruct
+    - exhaustruct
     - forbidigo
     - funlen
     - gocognit
@@ -16,18 +17,21 @@ linters:
     - wsl
     - tagliatelle
     - testpackage
-linters-settings:
-  lll:
+    - varnamelen
+    - depguard
+    - gci
+linters-settings: 
+  lll: 
     line-length: 120
-  goimports:
-    local-prefixes: github.com/vitoordaz
-  tagliatelle:
-    case:
+  goimports: 
+    local-prefixes: github.com/vitoordaz/robinhood-export
+  tagliatelle: 
+    case: 
       use-field-name: true
-      rules:
+      rules: 
         json: snake
-issues:
-  exclude-rules:
+issues: 
+  exclude-rules: 
     - path: cmd/robinhood-export/main.go
-      linters:
+      linters: 
         - gochecknoglobals
