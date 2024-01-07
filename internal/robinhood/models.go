@@ -17,7 +17,7 @@ type RequestToken struct {
 	Username                     string `json:"username,omitempty"`
 	Password                     string `json:"password,omitempty"`
 	MFACode                      string `json:"mfa_code,omitempty"`
-	LongSession                  bool   `json:"long_session,omitempty`
+	LongSession                  bool   `json:"long_session,omitempty"`
 	CreateReadOnlySecondaryToken bool   `json:"create_read_only_secondary_token,omitempty"`
 }
 
