@@ -65,68 +65,19 @@ func (dc *defaultClient) GetToken(ctx context.Context, username, password, mfa s
 }
 
 func (dc *defaultClient) GetMarket(ctx context.Context, id string) (*Market, error) {
-	result, err := dc.get(ctx, nil, getDetailURL(EndpointMarket, id), &Market{})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*Market), nil
+	return doGet[Market](ctx, dc.c, nil, getDetailURL(EndpointMarket, id))
 }
 
 func (dc *defaultClient) GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseOrders, error) {
-	result, err := dc.list(ctx, auth, EndpointOrders, cursor, &ResponseOrders{})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*ResponseOrders), nil
+	return doList[ResponseOrders](ctx, dc.c, auth, EndpointOrders, cursor)
 }
 
-func (dc *defaultClient) GetPositions(
-	ctx context.Context,
-	auth *ResponseToken,
-	cursor string,
-) (*ResponsePositions, error) {
-	result, err := dc.list(ctx, auth, EndpointPositions, cursor, &ResponsePositions{})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*ResponsePositions), nil
+func (dc *defaultClient) GetPositions(ctx context.Context, auth *ResponseToken, cursor string) (*ResponsePositions, error) {
+	return doList[ResponsePositions](ctx, dc.c, auth, EndpointPositions, cursor)
 }
 
 func (dc *defaultClient) GetInstrument(ctx context.Context, id string) (*Instrument, error) {
-	result, err := dc.get(ctx, nil, getDetailURL(EndpointInstrument, id), &Instrument{})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*Instrument), nil
-}
-
-func (dc *defaultClient) get(
-	ctx context.Context,
-	auth *ResponseToken,
-	url string,
-	result interface{},
-) (interface{}, error) {
-	r := dc.c.R().SetContext(ctx).SetResult(result)
-	if auth != nil {
-		r = r.SetAuthScheme(auth.TokenType).SetAuthToken(auth.AccessToken)
-	}
-	resp, err := r.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	if resp.IsError() {
-		return nil, resp.Error().(error)
-	}
-	return resp.Result(), nil
-}
-
-func (dc *defaultClient) list(
-	ctx context.Context,
-	auth *ResponseToken,
-	endpoint, cursor string,
-	result interface{},
-) (interface{}, error) {
-	return dc.get(ctx, auth, getListURL(endpoint, cursor), result)
+	return doGet[Instrument](ctx, dc.c, nil, getDetailURL(EndpointInstrument, id))
 }
 
 func getDetailURL(prefix, id string) string {
@@ -146,4 +97,23 @@ func getListURL(endpoint, cursor string) string {
 // isURL returns true if a given v is url.
 func isURL(v string) bool {
 	return strings.HasPrefix(v, "https://") || strings.HasPrefix(v, "http://")
+}
+
+func doGet[T any](ctx context.Context, client *resty.Client, auth *ResponseToken, url string) (*T, error) {
+	r := client.R().SetContext(ctx).SetResult(new(T))
+	if auth != nil {
+		r = r.SetAuthScheme(auth.TokenType).SetAuthToken(auth.AccessToken)
+	}
+	resp, err := r.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	if resp.IsError() {
+		return nil, resp.Error().(error)
+	}
+	return resp.Result().(*T), nil
+}
+
+func doList[T any](ctx context.Context, client *resty.Client, auth *ResponseToken, endpoint, cursor string) (*T, error) {
+	return doGet[T](ctx, client, auth, getListURL(endpoint, cursor))
 }
