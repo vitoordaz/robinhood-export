@@ -9,6 +9,9 @@ import (
 )
 
 func TestLoadList(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	type item struct {
 		Field int
 	}
@@ -18,8 +21,7 @@ func TestLoadList(t *testing.T) {
 		items = append(items, &item{Field: i})
 	}
 
-	result := make([]*item, 0)
-	err := LoadList(context.Background(), &result, func(c context.Context, cursor string) (interface{}, string, error) {
+	result, err := LoadList(ctx, func(c context.Context, cursor string) ([]*item, string, error) {
 		var err error
 		var idx int64
 		if cursor != "" {

@@ -1,15 +1,12 @@
 package utils
 
-import (
-	"context"
-	"reflect"
-)
+import "context"
 
-type ListLoadFunc func(ctx context.Context, cursor string) (interface{}, string, error)
+type ListLoadFunc[T any] func(ctx context.Context, cursor string) ([]*T, string, error)
 
 // LoadList iterates over results of a given load function and appends them to a given list.
-func LoadList(ctx context.Context, list interface{}, loadFunc ListLoadFunc) error {
-	valuePtr := reflect.ValueOf(list)
+func LoadList[T any](ctx context.Context, loadFunc ListLoadFunc[T]) ([]*T, error) {
+	var result []*T
 	var (
 		items  interface{}
 		cursor string
@@ -17,12 +14,15 @@ func LoadList(ctx context.Context, list interface{}, loadFunc ListLoadFunc) erro
 	)
 	for {
 		if items, cursor, err = loadFunc(ctx, cursor); err != nil {
-			return err
+			return nil, err
 		}
-		valuePtr.Elem().Set(reflect.AppendSlice(valuePtr.Elem(), reflect.ValueOf(items)))
+		for _, item := range items.([]*T) {
+			result = append(result, item)
+		}
+		// valuePtr.Elem().Set(reflect.AppendSlice(valuePtr.Elem(), reflect.ValueOf(items)))
 		if cursor == "" {
 			break
 		}
 	}
-	return nil
+	return result, nil
 }

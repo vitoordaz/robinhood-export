@@ -77,8 +77,7 @@ func loadPositions(
 	client robinhood.Client,
 	token *robinhood.ResponseToken,
 ) ([]*robinhood.Position, error) {
-	positions := make([]*robinhood.Position, 0)
-	err := utils.LoadList(ctx, &positions, func(c context.Context, cursor string) (interface{}, string, error) {
+	positions, err := utils.LoadList(ctx, func(c context.Context, cursor string) ([]*robinhood.Position, string, error) {
 		result, er := client.GetPositions(c, token, cursor)
 		if er != nil {
 			return nil, "", er

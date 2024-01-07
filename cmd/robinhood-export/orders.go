@@ -68,8 +68,7 @@ func loadOrders(
 	client robinhood.Client,
 	token *robinhood.ResponseToken,
 ) ([]*robinhood.Order, error) {
-	orders := make([]*robinhood.Order, 0)
-	err := utils.LoadList(ctx, &orders, func(c context.Context, cursor string) (interface{}, string, error) {
+	orders, err := utils.LoadList(ctx, func(c context.Context, cursor string) ([]*robinhood.Order, string, error) {
 		result, err := client.GetOrders(c, token, cursor)
 		if err != nil {
 			return nil, "", err
