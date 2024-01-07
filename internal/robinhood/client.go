@@ -41,14 +41,16 @@ func (dc *defaultClient) GetToken(ctx context.Context, username, password, mfa s
 	resp, err := dc.c.R().
 		SetContext(ctx).
 		SetBody(&RequestToken{
-			GrantType:   "password",
-			Scope:       "internal",
-			ClientID:    clientID,
-			ExpiresIn:   86400,
-			DeviceToken: uuid.New().String(),
-			Username:    username,
-			Password:    password,
-			MFACode:     mfa,
+			GrantType:                    "password",
+			Scope:                        "internal",
+			ClientID:                     clientID,
+			ExpiresIn:                    86400,
+			DeviceToken:                  uuid.New().String(),
+			Username:                     username,
+			Password:                     password,
+			MFACode:                      mfa,
+			LongSession:                  true,
+			CreateReadOnlySecondaryToken: true,
 		}).
 		SetResult(&ResponseToken{}).
 		Post(EndpointToken)

@@ -9,14 +9,16 @@ const (
 )
 
 type RequestToken struct {
-	GrantType   string `json:"grant_type,omitempty"`
-	Scope       string `json:"internal,omitempty"`
-	ClientID    string `json:"client_id,omitempty"`
-	ExpiresIn   int64  `json:"expires_in,omitempty"`
-	DeviceToken string `json:"device_token,omitempty"`
-	Username    string `json:"username,omitempty"`
-	Password    string `json:"password,omitempty"`
-	MFACode     string `json:"mfa_code,omitempty"`
+	GrantType                    string `json:"grant_type,omitempty"`
+	Scope                        string `json:"scope,omitempty"`
+	ClientID                     string `json:"client_id,omitempty"`
+	ExpiresIn                    int64  `json:"expires_in,omitempty"`
+	DeviceToken                  string `json:"device_token,omitempty"`
+	Username                     string `json:"username,omitempty"`
+	Password                     string `json:"password,omitempty"`
+	MFACode                      string `json:"mfa_code,omitempty"`
+	LongSession                  bool   `json:"long_session,omitempty`
+	CreateReadOnlySecondaryToken bool   `json:"create_read_only_secondary_token,omitempty"`
 }
 
 type ResponseInstruments struct {
@@ -38,15 +40,16 @@ type ResponsePositions struct {
 }
 
 type ResponseToken struct {
-	MFARequired  bool   `json:"mfa_required,omitempty"`
-	MFAType      string `json:"mfa_type,omitempty"`
-	AccessToken  string `json:"access_token,omitempty"`
-	ExpiresIn    int64  `json:"expires_in,omitempty"`
-	TokenType    string `json:"token_type,omitempty"`
-	Scope        string `json:"scope,omitempty"`
-	RefreshToken string `json:"refresh_token,omitempty"`
-	MFACode      string `json:"mfa_code,omitempty"`
-	BackupCode   string `json:"backup_code,omitempty"`
+	MFARequired                  bool   `json:"mfa_required,omitempty"`
+	MFAType                      string `json:"mfa_type,omitempty"`
+	AccessToken                  string `json:"access_token,omitempty"`
+	ExpiresIn                    int64  `json:"expires_in,omitempty"`
+	TokenType                    string `json:"token_type,omitempty"`
+	Scope                        string `json:"scope,omitempty"`
+	RefreshToken                 string `json:"refresh_token,omitempty"`
+	MFACode                      string `json:"mfa_code,omitempty"`
+	BackupCode                   string `json:"backup_code,omitempty"`
+	ReadOnlySecondaryAccessToken string `json:"read_only_secondary_access_token,omitempty"`
 }
 
 type Instrument struct {
