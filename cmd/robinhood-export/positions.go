@@ -67,8 +67,8 @@ func doPositions(args arguments) {
 }
 
 func getPositionsInstrumentIds(positions []*robinhood.Position) []string {
-	return utils.GetIDs(positions, func(position interface{}) string {
-		return position.(*robinhood.Position).Instrument
+	return utils.GetIDs(positions, func(position *robinhood.Position) string {
+		return position.Instrument
 	})
 }
 

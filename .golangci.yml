@@ -20,11 +20,16 @@ linters:
     - varnamelen
     - depguard
     - gci
+    - ireturn
 linters-settings: 
   lll: 
     line-length: 120
   goimports: 
     local-prefixes: github.com/vitoordaz/robinhood-export
+  revive: 
+    rules: 
+      - name: empty-block
+        disabled: true
   tagliatelle: 
     case: 
       use-field-name: true

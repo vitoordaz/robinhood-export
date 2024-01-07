@@ -28,7 +28,7 @@ func TestLoadDetails(t *testing.T) {
 		items = append(items, ii)
 	}
 
-	result, err := LoadDetails[item](ctx, ids, func(ctx context.Context, id string) (*item, error) {
+	result, err := LoadDetails(ctx, ids, func(ctx context.Context, id string) (*item, error) {
 		return itemByID[id], nil
 	})
 	require.NoError(t, err)

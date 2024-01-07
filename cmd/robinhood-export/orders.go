@@ -82,8 +82,8 @@ func loadOrders(
 }
 
 func getOrdersInstrumentIds(orders []*robinhood.Order) []string {
-	return utils.GetIDs(orders, func(order interface{}) string {
-		return order.(*robinhood.Order).Instrument
+	return utils.GetIDs(orders, func(order *robinhood.Order) string {
+		return order.Instrument
 	})
 }
 

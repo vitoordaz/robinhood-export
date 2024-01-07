@@ -22,6 +22,6 @@ func TestGetIDs(t *testing.T) {
 		}
 	}
 
-	result := GetIDs(duplicates, func(i interface{}) string { return i.(*item).ID })
+	result := GetIDs(duplicates, func(i *item) string { return i.ID })
 	require.Equal(t, deduplicated, result)
 }

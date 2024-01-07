@@ -5,17 +5,17 @@ import (
 	"sync"
 )
 
-type ItemLoadFunc[T any] func(ctx context.Context, id string) (*T, error)
+type ItemLoadFunc[T any] func(ctx context.Context, id string) (T, error)
 
 const maxConcurrency = 10
 
 type valueOrError[T any] struct {
-	Value *T
+	Value T
 	Err   error
 }
 
 // LoadDetails concurrently loads items with a given ids using given load function.
-func LoadDetails[T any](ctx context.Context, ids []string, loadFunc ItemLoadFunc[T]) ([]*T, error) {
+func LoadDetails[T any](ctx context.Context, ids []string, loadFunc ItemLoadFunc[T]) ([]T, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	valuesCh := make(chan *valueOrError[T])
@@ -42,7 +42,7 @@ func LoadDetails[T any](ctx context.Context, ids []string, loadFunc ItemLoadFunc
 		}
 	}()
 
-	items := make([]*T, 0, len(ids))
+	items := make([]T, 0, len(ids))
 	for v := range valuesCh {
 		if v.Err != nil {
 			// in case of error cancel pending requests and drain resultsCh

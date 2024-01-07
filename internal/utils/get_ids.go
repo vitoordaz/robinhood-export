@@ -1,16 +1,14 @@
 package utils
 
-import "reflect"
+type GetIDFunc[T any] func(T) string
 
-type GetIDFunc func(interface{}) string
-
-func GetIDs(items interface{}, getIDFunc GetIDFunc) []string {
-	set := map[string]bool{}
-	value := reflect.ValueOf(items)
-	var ids []string
-	for i := 0; i < value.Len(); i++ {
-		id := getIDFunc(value.Index(i).Interface())
-		if !set[id] {
+func GetIDs[T any](items []T, getIDFunc GetIDFunc[T]) []string {
+	var (
+		ids []string
+		set = map[string]bool{}
+	)
+	for _, item := range items {
+		if id := getIDFunc(item); !set[id] {
 			ids = append(ids, id)
 			set[id] = true
 		}

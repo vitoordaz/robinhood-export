@@ -8,17 +8,17 @@ import (
 )
 
 func getInstrumentsMarketIds(instruments []*robinhood.Instrument) []string {
-	return utils.GetIDs(instruments, func(instrument interface{}) string {
-		return instrument.(*robinhood.Instrument).Market
+	return utils.GetIDs(instruments, func(instrument *robinhood.Instrument) string {
+		return instrument.Market
 	})
 }
 
 func loadInstruments(ctx context.Context, client robinhood.Client, ids []string) ([]*robinhood.Instrument, error) {
-	return utils.LoadDetails[robinhood.Instrument](ctx, ids, client.GetInstrument)
+	return utils.LoadDetails(ctx, ids, client.GetInstrument)
 }
 
 func loadMarkets(ctx context.Context, client robinhood.Client, ids []string) ([]*robinhood.Market, error) {
-	return utils.LoadDetails[robinhood.Market](ctx, ids, client.GetMarket)
+	return utils.LoadDetails(ctx, ids, client.GetMarket)
 }
 
 func getInstrumentByURL(instruments []*robinhood.Instrument) map[string]*robinhood.Instrument {
