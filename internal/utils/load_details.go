@@ -18,6 +18,7 @@ func LoadDetails(ctx context.Context, ids []string, out interface{}, loadFunc It
 	}
 
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	resultsCh := make(chan *result)
 	go func() {
 		wg := sync.WaitGroup{}
@@ -26,7 +27,7 @@ func LoadDetails(ctx context.Context, ids []string, out interface{}, loadFunc It
 			close(resultsCh)
 		}()
 		sem := make(chan interface{}, maxConcurrency)
-		for _, i := range ids {
+		for _, id := range ids {
 			wg.Add(1)
 			select {
 			case sem <- nil:
@@ -38,7 +39,7 @@ func LoadDetails(ctx context.Context, ids []string, out interface{}, loadFunc It
 				resultsCh <- &result{item, er}
 				wg.Done()
 				<-sem
-			}(i)
+			}(id)
 		}
 	}()
 

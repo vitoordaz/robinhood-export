@@ -2,6 +2,8 @@ package robinhood
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/go-resty/resty/v2"
@@ -58,10 +60,7 @@ func (dc *defaultClient) GetToken(ctx context.Context, username, password, mfa s
 	if err != nil {
 		return nil, err
 	}
-	if resp.IsError() {
-		return nil, resp.Error().(error)
-	}
-	return resp.Result().(*ResponseToken), nil
+	return handleResponse[ResponseToken](resp)
 }
 
 func (dc *defaultClient) GetMarket(ctx context.Context, id string) (*Market, error) {
@@ -72,7 +71,11 @@ func (dc *defaultClient) GetOrders(ctx context.Context, auth *ResponseToken, cur
 	return doList[ResponseOrders](ctx, dc.c, auth, EndpointOrders, cursor)
 }
 
-func (dc *defaultClient) GetPositions(ctx context.Context, auth *ResponseToken, cursor string) (*ResponsePositions, error) {
+func (dc *defaultClient) GetPositions(
+	ctx context.Context,
+	auth *ResponseToken,
+	cursor string,
+) (*ResponsePositions, error) {
 	return doList[ResponsePositions](ctx, dc.c, auth, EndpointPositions, cursor)
 }
 
@@ -99,6 +102,21 @@ func isURL(v string) bool {
 	return strings.HasPrefix(v, "https://") || strings.HasPrefix(v, "http://")
 }
 
+func handleResponse[T any](resp *resty.Response) (*T, error) {
+	if resp.IsError() {
+		err, ok := resp.Error().(error)
+		if ok {
+			return nil, err
+		}
+		return nil, fmt.Errorf("invalid error type: %s", reflect.TypeOf(resp.Error()))
+	}
+	result, ok := resp.Result().(*T)
+	if ok {
+		return result, nil
+	}
+	return nil, fmt.Errorf("invalid result type: %s", reflect.TypeOf(resp.Result()))
+}
+
 func doGet[T any](ctx context.Context, client *resty.Client, auth *ResponseToken, url string) (*T, error) {
 	r := client.R().SetContext(ctx).SetResult(new(T))
 	if auth != nil {
@@ -108,12 +126,14 @@ func doGet[T any](ctx context.Context, client *resty.Client, auth *ResponseToken
 	if err != nil {
 		return nil, err
 	}
-	if resp.IsError() {
-		return nil, resp.Error().(error)
-	}
-	return resp.Result().(*T), nil
+	return handleResponse[T](resp)
 }
 
-func doList[T any](ctx context.Context, client *resty.Client, auth *ResponseToken, endpoint, cursor string) (*T, error) {
+func doList[T any](
+	ctx context.Context,
+	client *resty.Client,
+	auth *ResponseToken,
+	endpoint, cursor string,
+) (*T, error) {
 	return doGet[T](ctx, client, auth, getListURL(endpoint, cursor))
 }

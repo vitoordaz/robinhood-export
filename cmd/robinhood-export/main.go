@@ -104,7 +104,7 @@ func getAuthToken(
 	ctx context.Context,
 	client robinhood.Client,
 	username string,
-) (resp *robinhood.ResponseToken, err error) {
+) (*robinhood.ResponseToken, error) {
 	password := ""
 	reader := bufio.NewReader(os.Stdin)
 	for username == "" || password == "" {
@@ -134,6 +134,7 @@ func getAuthToken(
 			}
 		}
 	}
+	var resp *robinhood.ResponseToken
 	mfa := ""
 	for resp == nil || resp.AccessToken == "" {
 		msg := "Trying to log in using username, password"
@@ -141,7 +142,7 @@ func getAuthToken(
 			msg += " and OTP code"
 		}
 		logVerbose.Println(msg)
-		resp, err = client.GetToken(ctx, username, password, mfa)
+		resp, err := client.GetToken(ctx, username, password, mfa)
 		if err != nil {
 			return nil, err
 		}
