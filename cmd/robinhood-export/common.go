@@ -14,25 +14,11 @@ func getInstrumentsMarketIds(instruments []*robinhood.Instrument) []string {
 }
 
 func loadInstruments(ctx context.Context, client robinhood.Client, ids []string) ([]*robinhood.Instrument, error) {
-	instruments := make([]*robinhood.Instrument, 0, len(ids))
-	err := utils.LoadDetails(ctx, ids, &instruments, func(ctx context.Context, id string) (interface{}, error) {
-		return client.GetInstrument(ctx, id)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return instruments, nil
+	return utils.LoadDetails[robinhood.Instrument](ctx, ids, client.GetInstrument)
 }
 
 func loadMarkets(ctx context.Context, client robinhood.Client, ids []string) ([]*robinhood.Market, error) {
-	markets := make([]*robinhood.Market, 0, len(ids))
-	err := utils.LoadDetails(ctx, ids, &markets, func(ctx context.Context, id string) (interface{}, error) {
-		return client.GetMarket(ctx, id)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return markets, nil
+	return utils.LoadDetails[robinhood.Market](ctx, ids, client.GetMarket)
 }
 
 func getInstrumentByURL(instruments []*robinhood.Instrument) map[string]*robinhood.Instrument {

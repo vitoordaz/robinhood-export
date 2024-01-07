@@ -10,6 +10,9 @@ import (
 )
 
 func TestLoadDetails(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	type item struct {
 		Field int
 	}
@@ -25,8 +28,7 @@ func TestLoadDetails(t *testing.T) {
 		items = append(items, ii)
 	}
 
-	result := make([]*item, 0, 100)
-	err := LoadDetails(context.Background(), ids, &result, func(ctx context.Context, id string) (interface{}, error) {
+	result, err := LoadDetails[item](ctx, ids, func(ctx context.Context, id string) (*item, error) {
 		return itemByID[id], nil
 	})
 	require.NoError(t, err)

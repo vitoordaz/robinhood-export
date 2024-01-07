@@ -2,29 +2,28 @@ package utils
 
 import (
 	"context"
-	"reflect"
 	"sync"
 )
 
-type ItemLoadFunc func(ctx context.Context, id string) (interface{}, error)
+type ItemLoadFunc[T any] func(ctx context.Context, id string) (*T, error)
 
 const maxConcurrency = 10
 
-// LoadDetails concurrently loads items with a given ids using given load function.
-func LoadDetails(ctx context.Context, ids []string, out interface{}, loadFunc ItemLoadFunc) error {
-	type result struct {
-		item interface{}
-		err  error
-	}
+type valueOrError[T any] struct {
+	Value *T
+	Err   error
+}
 
+// LoadDetails concurrently loads items with a given ids using given load function.
+func LoadDetails[T any](ctx context.Context, ids []string, loadFunc ItemLoadFunc[T]) ([]*T, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	resultsCh := make(chan *result)
+	valuesCh := make(chan *valueOrError[T])
 	go func() {
 		wg := sync.WaitGroup{}
 		defer func() {
 			wg.Wait() // wait for all requests to complete before closing resultsCh
-			close(resultsCh)
+			close(valuesCh)
 		}()
 		sem := make(chan interface{}, maxConcurrency)
 		for _, id := range ids {
@@ -35,24 +34,24 @@ func LoadDetails(ctx context.Context, ids []string, out interface{}, loadFunc It
 				return
 			}
 			go func(id string) {
-				item, er := loadFunc(ctx, id)
-				resultsCh <- &result{item, er}
+				value, er := loadFunc(ctx, id)
+				valuesCh <- &valueOrError[T]{Value: value, Err: er}
 				wg.Done()
 				<-sem
 			}(id)
 		}
 	}()
 
-	outPtr := reflect.ValueOf(out)
-	for result := range resultsCh {
-		if result.err != nil {
+	items := make([]*T, 0, len(ids))
+	for v := range valuesCh {
+		if v.Err != nil {
 			// in case of error cancel pending requests and drain resultsCh
 			cancel()
-			for range resultsCh {
+			for range valuesCh {
 			}
-			return result.err
+			return nil, v.Err
 		}
-		outPtr.Elem().Set(reflect.Append(outPtr.Elem(), reflect.ValueOf(result.item)))
+		items = append(items, v.Value)
 	}
-	return nil
+	return items, nil
 }
