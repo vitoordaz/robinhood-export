@@ -1,9 +1,7 @@
 # Robinhood-Export
 
-[![GitHub Test Badge][1]][2]
-
-[1]: https://github.com/vitoordaz/robinhood-export/workflows/Test/badge.svg "GitHub Test Badge"
-[2]: https://github.com/vitoordaz/robinhood-export/actions "GitHub Actions Page"
+[![Test](https://github.com/vitoordaz/robinhood-export/actions/workflows/test.yml/badge.svg?branch=mainline)](https://github.com/vitoordaz/robinhood-export/actions/workflows/test.yml)
+[![Linter](https://github.com/vitoordaz/robinhood-export/actions/workflows/linter.yml/badge.svg?branch=mainline)](https://github.com/vitoordaz/robinhood-export/actions/workflows/linter.yml)
 
 robinhood-export is a tool for exporting data from Robinhood (https://robinhood.com/).
 
