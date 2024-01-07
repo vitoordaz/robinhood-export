@@ -9,8 +9,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/vitoordaz/robinhood-export/internal/robinhood"
 	"golang.org/x/term"
+
+	"github.com/vitoordaz/robinhood-export/internal/robinhood"
 )
 
 type arguments struct {
@@ -48,7 +49,7 @@ func main() {
 	flag.Parse()
 	if len(flag.Args()) < 1 {
 		flag.Usage()
-		os.Exit(2)
+		os.Exit(exitCodeError)
 	}
 
 	helpCmd.Usage = printHelpUsage
@@ -59,21 +60,21 @@ func main() {
 	case "help":
 		if err := helpCmd.Parse(os.Args[2:]); err != nil || len(helpCmd.Args()) < 1 {
 			helpCmd.Usage()
-			os.Exit(2)
+			os.Exit(exitCodeError)
 		}
 		doHelp(helpCmd.Arg(0))
 		os.Exit(exitCodeOk)
 	case "orders":
 		if err := ordersCmd.Parse(os.Args[2:]); err != nil {
 			ordersCmd.Usage()
-			os.Exit(2)
+			os.Exit(exitCodeError)
 		}
 		doOrders(arguments{username: *ordersCmdUsername, verbose: *ordersCmdVerbose, output: *ordersCmdOutput})
 		os.Exit(exitCodeOk)
 	case "positions":
 		if err := positionsCmd.Parse(os.Args[2:]); err != nil {
 			positionsCmd.Usage()
-			os.Exit(2)
+			os.Exit(exitCodeError)
 		}
 		doPositions(arguments{
 			username: *positionsCmdUsername,
@@ -84,9 +85,8 @@ func main() {
 		os.Exit(exitCodeOk)
 	default:
 		flag.Usage()
-		os.Exit(2)
+		os.Exit(exitCodeError)
 	}
-	os.Exit(exitCodeOk)
 }
 
 func readLine(reader *bufio.Reader) (string, error) {
