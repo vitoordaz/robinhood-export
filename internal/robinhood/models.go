@@ -1,6 +1,7 @@
 package robinhood
 
 const (
+	EndpointDividends  = "https://api.robinhood.com/dividends/"
 	EndpointInstrument = "https://api.robinhood.com/instruments/"
 	EndpointMarket     = "https://api.robinhood.com/markets/"
 	EndpointToken      = "https://api.robinhood.com/oauth2/token/"
@@ -75,6 +76,25 @@ type Order struct {
 // IsFilled returns true if order state is filled.
 func (o *Order) IsFilled() bool {
 	return o.State == OrderStateFilled
+}
+
+type Dividend struct {
+	ID               string `json:"id,omitempty"`
+	URL              string `json:"url,omitempty"`
+	Account          string `json:"account,omitempty"`
+	Instrument       string `json:"instrument,omitempty"`
+	Amount           string `json:"amount,omitempty"`
+	Rate             string `json:"rate,omitempty"`
+	Position         string `json:"position,omitempty"`
+	Withholding      string `json:"withholding,omitempty"`
+	RecordDate       string `json:"record_date,omitempty"`
+	PayableDate      string `json:"payable_date,omitempty"`
+	PaidAt           string `json:"paid_at,omitempty"`
+	State            string `json:"state,omitempty"`
+	CashDividendId   string `json:"cash_dividend_id,omitempty"`
+	DripEnabled      bool   `json:"drip_enabled,omitempty"`
+	NRAWithholding   string `json:"nra_withholding,omitempty"`
+	IsPrimaryAccount bool   `json:"is_primary_account,omitempty"`
 }
 
 type Position struct {

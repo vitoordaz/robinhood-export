@@ -7,6 +7,8 @@ import (
 
 func doHelp(cmd string) {
 	switch cmd {
+	case "dividends":
+		dividendsCmd.Usage()
 	case "orders":
 		ordersCmd.Usage()
 	case "positions":
@@ -20,6 +22,7 @@ func printUsage() {
 	fmt.Printf("	%s <command> [arguments]\n\n", os.Args[0])
 	fmt.Println(`The commands are:`)
 	fmt.Println()
+	fmt.Println(`	dividends	exports all dividends`)
 	fmt.Println(`	orders		exports all orders`)
 	fmt.Println(`	positions	exports all positions`)
 	fmt.Println()
@@ -28,6 +31,11 @@ func printUsage() {
 
 func printHelpUsage() {
 	fmt.Printf("Usage: %s help <command>\n", os.Args[0])
+}
+
+func printDividendsUsage() {
+	fmt.Printf("Usage: %s dividends [arguments]\n", os.Args[0])
+	ordersCmd.PrintDefaults()
 }
 
 func printOrdersUsage() {

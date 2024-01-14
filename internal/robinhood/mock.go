@@ -3,11 +3,19 @@ package robinhood
 import "context"
 
 type MockClient struct {
+	GetDividendsFunc  func(ctx context.Context, auth *RequestToken, cursor string) (*ResponseList[*Dividend], error)
 	GetInstrumentFunc func(ctx context.Context, id string) (*Instrument, error)
 	GetMarketFunc     func(ctx context.Context, id string) (*Market, error)
 	GetOrdersFunc     func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error)
 	GetPositionsFunc  func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Position], error)
 	GetTokenFunc      func(ctx context.Context, username, password, mfa string) (*ResponseToken, error)
+}
+
+func (c *MockClient) GetDividends(ctx context.Context, auth *RequestToken, cursor string) (*ResponseList[*Dividend], error) {
+	if c.GetInstrumentFunc != nil {
+		return c.GetDividendsFunc(ctx, auth, cursor)
+	}
+	return &ResponseList[*Dividend]{}, nil
 }
 
 func (c *MockClient) GetInstrument(ctx context.Context, id string) (*Instrument, error) {

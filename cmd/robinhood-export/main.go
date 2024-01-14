@@ -32,6 +32,11 @@ var (
 
 	helpCmd = flag.NewFlagSet("help", flag.ExitOnError)
 
+	dividendsCmd         = flag.NewFlagSet("dividends", flag.ExitOnError)
+	dividendsCmdUsername = dividendsCmd.String("u", "", "Robinhood account username or email.") // optional
+	dividendsCmdOutput   = dividendsCmd.String("o", "", "path to output file.")                 // optional
+	dividendsCmdVerbose  = dividendsCmd.Bool("v", false, "enable verbose messages.")            // optional
+
 	ordersCmd         = flag.NewFlagSet("orders", flag.ExitOnError)
 	ordersCmdUsername = ordersCmd.String("u", "", "Robinhood account username or email.") // optional
 	ordersCmdOutput   = ordersCmd.String("o", "", "path to output file.")                 // optional
@@ -52,11 +57,24 @@ func main() {
 		os.Exit(exitCodeError)
 	}
 
+	dividendsCmd.Usage = printDividendsUsage
 	helpCmd.Usage = printHelpUsage
 	ordersCmd.Usage = printOrdersUsage
 	positionsCmd.Usage = printPositionsUsage
 
 	switch flag.Arg(0) {
+	case "dividends":
+		if err := dividendsCmd.Parse(os.Args[2:]); err != nil {
+			logError.Println(err)
+			dividendsCmd.Usage()
+			os.Exit(exitCodeError)
+		}
+		doDividends(arguments{
+			username: *dividendsCmdUsername,
+			verbose:  *dividendsCmdVerbose,
+			output:   *dividendsCmdOutput,
+		})
+		os.Exit(exitCodeError)
 	case "help":
 		if err := helpCmd.Parse(os.Args[2:]); err != nil || len(helpCmd.Args()) < 1 {
 			if err != nil {

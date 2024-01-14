@@ -18,6 +18,7 @@ const (
 )
 
 type Client interface {
+	GetDividends(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Dividend], error)
 	GetInstrument(ctx context.Context, id string) (*Instrument, error)
 	GetMarket(ctx context.Context, id string) (*Market, error)
 	GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error)
@@ -38,6 +39,14 @@ func New() Client {
 
 type defaultClient struct {
 	c *resty.Client
+}
+
+func (dc *defaultClient) GetDividends(
+	ctx context.Context,
+	auth *ResponseToken,
+	cursor string,
+) (*ResponseList[*Dividend], error) {
+	return doList[ResponseList[*Dividend]](ctx, dc.c, auth, EndpointDividends, cursor)
 }
 
 func (dc *defaultClient) GetToken(ctx context.Context, username, password, mfa string) (*ResponseToken, error) {
