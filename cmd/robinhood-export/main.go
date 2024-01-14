@@ -59,6 +59,9 @@ func main() {
 	switch flag.Arg(0) {
 	case "help":
 		if err := helpCmd.Parse(os.Args[2:]); err != nil || len(helpCmd.Args()) < 1 {
+			if err != nil {
+				logError.Println(err)
+			}
 			helpCmd.Usage()
 			os.Exit(exitCodeError)
 		}
@@ -66,6 +69,7 @@ func main() {
 		os.Exit(exitCodeOk)
 	case "orders":
 		if err := ordersCmd.Parse(os.Args[2:]); err != nil {
+			logError.Println(err)
 			ordersCmd.Usage()
 			os.Exit(exitCodeError)
 		}
@@ -73,6 +77,9 @@ func main() {
 		os.Exit(exitCodeOk)
 	case "positions":
 		if err := positionsCmd.Parse(os.Args[2:]); err != nil {
+			if err != nil {
+				logError.Println(err)
+			}
 			positionsCmd.Usage()
 			os.Exit(exitCodeError)
 		}
@@ -134,15 +141,18 @@ func getAuthToken(
 			}
 		}
 	}
-	var resp *robinhood.ResponseToken
-	mfa := ""
+	var (
+		err  error
+		resp *robinhood.ResponseToken
+		mfa  = ""
+	)
 	for resp == nil || resp.AccessToken == "" {
 		msg := "Trying to log in using username, password"
 		if mfa != "" {
 			msg += " and OTP code"
 		}
 		logVerbose.Println(msg)
-		resp, err := client.GetToken(ctx, username, password, mfa)
+		resp, err = client.GetToken(ctx, username, password, mfa)
 		if err != nil {
 			return nil, err
 		}
