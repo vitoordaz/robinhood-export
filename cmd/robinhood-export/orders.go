@@ -16,7 +16,8 @@ func doOrders(args arguments) {
 		logVerbose.SetOutput(io.Discard) // disable verbose logging
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	client := robinhood.New()
 
 	token, err := getAuthToken(ctx, client, args.username)
