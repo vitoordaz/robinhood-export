@@ -1,6 +1,7 @@
 package robinhood
 
 const (
+	EndpointAccounts   = "https://api.robinhood.com/accounts/"
 	EndpointDividends  = "https://api.robinhood.com/dividends/"
 	EndpointInstrument = "https://api.robinhood.com/instruments/"
 	EndpointMarket     = "https://api.robinhood.com/markets/"
@@ -39,6 +40,63 @@ type ResponseToken struct {
 	MFACode                      string `json:"mfa_code,omitempty"`
 	BackupCode                   string `json:"backup_code,omitempty"`
 	ReadOnlySecondaryAccessToken string `json:"read_only_secondary_access_token,omitempty"`
+}
+
+type Account struct {
+	URL                                  string `json:"url"`
+	PortfolioCash                        string `json:"portfolio_cash"`
+	CanDowngradeToCash                   string `json:"can_downgrade_to_cash"`
+	User                                 string `json:"user"`
+	AccountNumber                        string `json:"account_number"`
+	Type                                 string `json:"type"`
+	BrokerageAccountType                 string `json:"brokerage_account_type"`
+	CreatedAt                            string `json:"created_at"`
+	UpdatedAt                            string `json:"updated_at"`
+	Deactivated                          bool   `json:"deactivated"`
+	DepositHalted                        bool   `json:"deposit_halted"`
+	WithdrawalHalted                     bool   `json:"withdrawal_halted"`
+	OnlyPositionClosingTrades            bool   `json:"only_position_closing_trades"`
+	BuyingPower                          string `json:"buying_power"`
+	ONBP                                 string `json:"onbp"`
+	CashAvailableForWithdrawal           string `json:"cash_available_for_withdrawal"`
+	Cash                                 string `json:"cash"`
+	AmountEligibleForDepositCancellation string `json:"amount_eligible_for_deposit_cancellation"`
+	CashHeldForOrders                    string `json:"cash_held_for_orders"`
+	UnclearedDeposits                    string `json:"uncleared_deposits"`
+	SMA                                  string `json:"sma"`
+	SMAHeldForOrders                     string `json:"sma_held_for_orders"`
+	UnsettledFunds                       string `json:"unsettled_funds"`
+	UnsettledDebit                       string `json:"unsettled_debit"`
+	CryptoBuyingPower                    string `json:"crypto_buying_power"`
+	MaxACHEarlyAccessAmount              string `json:"max_ach_early_access_amount"`
+	CashBalances                         string `json:"cash_balances"`
+	SweepEnabled                         bool   `json:"sweep_enabled"`
+	SweepEnrolled                        bool   `json:"sweep_enrolled"`
+	OptionLevel                          string `json:"option_level"`
+	IsPinnacleAccount                    bool   `json:"is_pinnacle_account"`
+	RHSAccountNumber                     int64  `json:"rhs_account_number"`
+	State                                string `json:"state"`
+	ActiveSubscriptionID                 string `json:"active_subscription_id"`
+	Locked                               bool   `json:"locked"`
+	PermanentlyDeactivated               bool   `json:"permanently_deactivated"`
+	IPOAccessRestricted                  bool   `json:"ipo_access_restricted"`
+	IPOAccessRestrictedReason            string `json:"ipo_access_restricted_reason"`
+	ReceivedACHDebitLocked               bool   `json:"received_ach_debit_locked"`
+	DripEnabled                          bool   `json:"drip_enabled"`
+	EligibleForFractionals               bool   `json:"eligible_for_fractionals"`
+	EligibleForDrip                      bool   `json:"eligible_for_drip"`
+	EligibleForCashManagement            bool   `json:"eligible_for_cash_management"`
+	CashManagementEnabled                bool   `json:"cash_management_enabled"`
+	OptionTradingOnExpirationEnabled     bool   `json:"option_trading_on_expiration_enabled"`
+	CashHeldForOptionsCollateral         string `json:"cash_held_for_options_collateral"`
+	FractionalPositionClosingOnly        bool   `json:"fractional_position_closing_only"`
+	UserID                               string `json:"user_id"`
+	EquityTradingLock                    string `json:"equity_trading_lock"`
+	OptionTradingLock                    string `json:"option_trading_lock"`
+	DisableADT                           bool   `json:"disable_adt"`
+	ManagementType                       string `json:"management_type"`
+	DynamicInstantLimit                  string `json:"dynamic_instant_limit"`
+	Affiliate                            string `json:"affiliate"`
 }
 
 type Instrument struct {

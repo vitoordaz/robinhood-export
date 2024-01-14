@@ -18,6 +18,7 @@ const (
 )
 
 type Client interface {
+	GetAccount(ctx context.Context, auth *ResponseToken, id string) (*Account, error)
 	GetDividends(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Dividend], error)
 	GetInstrument(ctx context.Context, id string) (*Instrument, error)
 	GetMarket(ctx context.Context, id string) (*Market, error)
@@ -39,6 +40,10 @@ func New() Client {
 
 type defaultClient struct {
 	c *resty.Client
+}
+
+func (dc *defaultClient) GetAccount(ctx context.Context, auth *ResponseToken, id string) (*Account, error) {
+	return doGet[Account](ctx, dc.c, auth, getDetailURL(EndpointAccounts, id))
 }
 
 func (dc *defaultClient) GetDividends(

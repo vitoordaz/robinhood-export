@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"encoding/csv"
-	"github.com/vitoordaz/robinhood-export/internal/utils"
+	"fmt"
 	"io"
 	"os"
-	"fmt"
 
 	"github.com/vitoordaz/robinhood-export/internal/robinhood"
+	"github.com/vitoordaz/robinhood-export/internal/utils"
 )
 
 func doDividends(args arguments) {
@@ -32,6 +32,13 @@ func doDividends(args arguments) {
 	}
 	logVerbose.Printf("loaded %d dividends\n", len(dividends))
 
+	logVerbose.Println("loading accounts")
+	accounts, err := loadAccounts(ctx, client, token, getDividendsAccountIds(dividends))
+	if err != nil {
+		logError.Fatalln(err)
+	}
+	logVerbose.Printf("loaded %d accounts\n", len(accounts))
+
 	logVerbose.Println("loading instruments")
 	instruments, err := loadInstruments(ctx, client, getDividendsInstrumentIds(dividends))
 	if err != nil {
@@ -52,7 +59,7 @@ func doDividends(args arguments) {
 			}
 		}()
 	}
-	if err := outputDividends(f, dividends, instruments); err != nil {
+	if err := outputDividends(f, dividends, accounts, instruments); err != nil {
 		logError.Fatalln(err)
 	}
 }
@@ -77,11 +84,19 @@ func getDividendsInstrumentIds(dividends []*robinhood.Dividend) []string {
 	})
 }
 
+func getDividendsAccountIds(dividends []*robinhood.Dividend) []string {
+	return utils.GetIDs(dividends, func(dividend *robinhood.Dividend) string {
+		return dividend.Account
+	})
+}
+
 func outputDividends(
 	w io.Writer,
 	dividends []*robinhood.Dividend,
+	accounts []*robinhood.Account,
 	instruments []*robinhood.Instrument,
 ) error {
+	accountByURL := getAccountByURL(accounts)
 	instrumentByURL := getInstrumentByURL(instruments)
 	header := []string{
 		"account",
@@ -100,14 +115,18 @@ func outputDividends(
 		return err
 	}
 	for _, dividend := range dividends {
+		account, ok := accountByURL[dividend.Account]
+		if !ok {
+			return fmt.Errorf("missing account: %s", dividend.Account)
+		}
 		instrument, ok := instrumentByURL[dividend.Instrument]
 		if !ok {
 			return fmt.Errorf("missing instrument: %s", dividend.Instrument)
 		}
 		record := []string{
-			dividend.Account,
+			account.AccountNumber,
 			instrument.Symbol,
-			string(dividend.State),
+			dividend.State,
 			dividend.Amount,
 			dividend.Rate,
 			dividend.Withholding,

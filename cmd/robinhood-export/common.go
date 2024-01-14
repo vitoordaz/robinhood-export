@@ -13,12 +13,31 @@ func getInstrumentsMarketIds(instruments []*robinhood.Instrument) []string {
 	})
 }
 
+func loadAccounts(
+	ctx context.Context,
+	client robinhood.Client,
+	auth *robinhood.ResponseToken,
+	ids []string,
+) ([]*robinhood.Account, error) {
+	return utils.LoadDetails(ctx, ids, func(ctx context.Context, id string) (*robinhood.Account, error) {
+		return client.GetAccount(ctx, auth, id)
+	})
+}
+
 func loadInstruments(ctx context.Context, client robinhood.Client, ids []string) ([]*robinhood.Instrument, error) {
 	return utils.LoadDetails(ctx, ids, client.GetInstrument)
 }
 
 func loadMarkets(ctx context.Context, client robinhood.Client, ids []string) ([]*robinhood.Market, error) {
 	return utils.LoadDetails(ctx, ids, client.GetMarket)
+}
+
+func getAccountByURL(accounts []*robinhood.Account) map[string]*robinhood.Account {
+	accountByURL := make(map[string]*robinhood.Account, len(accounts))
+	for _, account := range accounts {
+		accountByURL[account.URL] = account
+	}
+	return accountByURL
 }
 
 func getInstrumentByURL(instruments []*robinhood.Instrument) map[string]*robinhood.Instrument {
