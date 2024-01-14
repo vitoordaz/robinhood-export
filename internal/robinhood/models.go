@@ -91,7 +91,7 @@ type Dividend struct {
 	PayableDate      string `json:"payable_date,omitempty"`
 	PaidAt           string `json:"paid_at,omitempty"`
 	State            string `json:"state,omitempty"`
-	CashDividendId   string `json:"cash_dividend_id,omitempty"`
+	CashDividendID   string `json:"cash_dividend_id,omitempty"`
 	DripEnabled      bool   `json:"drip_enabled,omitempty"`
 	NRAWithholding   string `json:"nra_withholding,omitempty"`
 	IsPrimaryAccount bool   `json:"is_primary_account,omitempty"`

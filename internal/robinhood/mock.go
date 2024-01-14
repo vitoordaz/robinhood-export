@@ -32,14 +32,22 @@ func (c *MockClient) GetMarket(ctx context.Context, id string) (*Market, error) 
 	return &Market{}, nil
 }
 
-func (c *MockClient) GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error) {
+func (c *MockClient) GetOrders(
+	ctx context.Context,
+	auth *ResponseToken,
+	cursor string,
+) (*ResponseList[*Order], error) {
 	if c.GetOrdersFunc != nil {
 		return c.GetOrdersFunc(ctx, auth, cursor)
 	}
 	return &ResponseList[*Order]{}, nil
 }
 
-func (c *MockClient) GetPositions(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Position], error) {
+func (c *MockClient) GetPositions(
+	ctx context.Context,
+	auth *ResponseToken,
+	cursor string,
+) (*ResponseList[*Position], error) {
 	if c.GetPositionsFunc != nil {
 		return c.GetPositionsFunc(ctx, auth, cursor)
 	}

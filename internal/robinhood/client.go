@@ -76,7 +76,11 @@ func (dc *defaultClient) GetMarket(ctx context.Context, id string) (*Market, err
 	return doGet[Market](ctx, dc.c, nil, getDetailURL(EndpointMarket, id))
 }
 
-func (dc *defaultClient) GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error) {
+func (dc *defaultClient) GetOrders(
+	ctx context.Context,
+	auth *ResponseToken,
+	cursor string,
+) (*ResponseList[*Order], error) {
 	return doList[ResponseList[*Order]](ctx, dc.c, auth, EndpointOrders, cursor)
 }
 
