@@ -5,8 +5,8 @@ import "context"
 type MockClient struct {
 	GetInstrumentFunc func(ctx context.Context, id string) (*Instrument, error)
 	GetMarketFunc     func(ctx context.Context, id string) (*Market, error)
-	GetOrdersFunc     func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseOrders, error)
-	GetPositionsFunc  func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponsePositions, error)
+	GetOrdersFunc     func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error)
+	GetPositionsFunc  func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Position], error)
 	GetTokenFunc      func(ctx context.Context, username, password, mfa string) (*ResponseToken, error)
 }
 
@@ -24,18 +24,18 @@ func (c *MockClient) GetMarket(ctx context.Context, id string) (*Market, error) 
 	return &Market{}, nil
 }
 
-func (c *MockClient) GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseOrders, error) {
+func (c *MockClient) GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error) {
 	if c.GetOrdersFunc != nil {
 		return c.GetOrdersFunc(ctx, auth, cursor)
 	}
-	return &ResponseOrders{}, nil
+	return &ResponseList[*Order]{}, nil
 }
 
-func (c *MockClient) GetPositions(ctx context.Context, auth *ResponseToken, cursor string) (*ResponsePositions, error) {
+func (c *MockClient) GetPositions(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Position], error) {
 	if c.GetPositionsFunc != nil {
 		return c.GetPositionsFunc(ctx, auth, cursor)
 	}
-	return &ResponsePositions{}, nil
+	return &ResponseList[*Position]{}, nil
 }
 
 func (c *MockClient) GetToken(ctx context.Context, username, password, mfa string) (*ResponseToken, error) {

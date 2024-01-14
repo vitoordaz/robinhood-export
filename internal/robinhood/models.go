@@ -21,22 +21,10 @@ type RequestToken struct {
 	CreateReadOnlySecondaryToken bool   `json:"create_read_only_secondary_token,omitempty"`
 }
 
-type ResponseInstruments struct {
-	Next     string        `json:"next,omitempty"`
-	Previous string        `json:"previous,omitempty"`
-	Results  []*Instrument `json:"results,omitempty"`
-}
-
-type ResponseOrders struct {
-	Next     string   `json:"next,omitempty"`
-	Previous string   `json:"previous,omitempty"`
-	Results  []*Order `json:"results,omitempty"`
-}
-
-type ResponsePositions struct {
-	Next     string      `json:"next,omitempty"`
-	Previous string      `json:"previous,omitempty"`
-	Results  []*Position `json:"results,omitempty"`
+type ResponseList[T any] struct {
+	Next     string `json:"next,omitempty"`
+	Previous string `json:"previous,omitempty"`
+	Results  []T    `json:"results,omitempty"`
 }
 
 type ResponseToken struct {

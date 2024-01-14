@@ -20,8 +20,8 @@ const (
 type Client interface {
 	GetInstrument(ctx context.Context, id string) (*Instrument, error)
 	GetMarket(ctx context.Context, id string) (*Market, error)
-	GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseOrders, error)
-	GetPositions(ctx context.Context, auth *ResponseToken, cursor string) (*ResponsePositions, error)
+	GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error)
+	GetPositions(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Position], error)
 	GetToken(ctx context.Context, username, password, mfa string) (*ResponseToken, error)
 }
 
@@ -67,16 +67,16 @@ func (dc *defaultClient) GetMarket(ctx context.Context, id string) (*Market, err
 	return doGet[Market](ctx, dc.c, nil, getDetailURL(EndpointMarket, id))
 }
 
-func (dc *defaultClient) GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseOrders, error) {
-	return doList[ResponseOrders](ctx, dc.c, auth, EndpointOrders, cursor)
+func (dc *defaultClient) GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error) {
+	return doList[ResponseList[*Order]](ctx, dc.c, auth, EndpointOrders, cursor)
 }
 
 func (dc *defaultClient) GetPositions(
 	ctx context.Context,
 	auth *ResponseToken,
 	cursor string,
-) (*ResponsePositions, error) {
-	return doList[ResponsePositions](ctx, dc.c, auth, EndpointPositions, cursor)
+) (*ResponseList[*Position], error) {
+	return doList[ResponseList[*Position]](ctx, dc.c, auth, EndpointPositions, cursor)
 }
 
 func (dc *defaultClient) GetInstrument(ctx context.Context, id string) (*Instrument, error) {
