@@ -77,9 +77,7 @@ func main() {
 		os.Exit(exitCodeError)
 	case "help":
 		if err := helpCmd.Parse(os.Args[2:]); err != nil || len(helpCmd.Args()) < 1 {
-			if err != nil {
-				logError.Println(err)
-			}
+			logError.Println(err)
 			helpCmd.Usage()
 			os.Exit(exitCodeError)
 		}
@@ -95,9 +93,7 @@ func main() {
 		os.Exit(exitCodeOk)
 	case "positions":
 		if err := positionsCmd.Parse(os.Args[2:]); err != nil {
-			if err != nil {
-				logError.Println(err)
-			}
+			logError.Println(err)
 			positionsCmd.Usage()
 			os.Exit(exitCodeError)
 		}
