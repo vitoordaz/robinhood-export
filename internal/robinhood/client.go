@@ -21,6 +21,12 @@ type Client interface {
 	GetAccount(ctx context.Context, auth *ResponseToken, id string) (*Account, error)
 	GetDividends(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Dividend], error)
 	GetInstrument(ctx context.Context, id string) (*Instrument, error)
+	GetItems(
+		ctx context.Context,
+		endpoint string,
+		auth *ResponseToken,
+		cursor string,
+	) (*ResponseList[map[string]any], error)
 	GetMarket(ctx context.Context, id string) (*Market, error)
 	GetOrders(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error)
 	GetPositions(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Position], error)
@@ -87,6 +93,15 @@ func (dc *defaultClient) GetOrders(
 	cursor string,
 ) (*ResponseList[*Order], error) {
 	return doList[ResponseList[*Order]](ctx, dc.c, auth, EndpointOrders, cursor)
+}
+
+func (dc *defaultClient) GetItems(
+	ctx context.Context,
+	endpoint string,
+	auth *ResponseToken,
+	cursor string,
+) (*ResponseList[map[string]any], error) {
+	return doList[ResponseList[map[string]any]](ctx, dc.c, auth, endpoint, cursor)
 }
 
 func (dc *defaultClient) GetPositions(
