@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -24,7 +23,7 @@ func TestIsZero(t *testing.T) {
 
 	for _, tc := range testCases {
 		tc := tc
-		t.Run(fmt.Sprintf("isZero %s", tc.value), func(t *testing.T) {
+		t.Run("isZero"+tc.value, func(t *testing.T) {
 			t.Parallel()
 
 			isZero, err := IsZero(tc.value)

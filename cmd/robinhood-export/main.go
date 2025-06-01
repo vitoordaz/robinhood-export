@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -116,7 +117,7 @@ func readLine(reader *bufio.Reader) (string, error) {
 		return "", err
 	}
 	if isPrefix {
-		return "", fmt.Errorf("line is too long")
+		return "", errors.New("line is too long")
 	}
 	return string(line), nil
 }

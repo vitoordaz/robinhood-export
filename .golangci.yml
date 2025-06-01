@@ -1,19 +1,18 @@
-linters: 
-  enable-all: true
-  disable: 
+version: "2"
+linters:
+  default: all
+  disable:
+    - err113
+    - mnd
     - cyclop
     - dupl
-    - exhaustivestruct
     - exhaustruct
     - forbidigo
     - funlen
     - gocognit
-    - goerr113
-    - gomnd
     - gosec
     - govet
     - nlreturn
-    - maligned
     - paralleltest
     - wrapcheck
     - wsl
@@ -21,24 +20,26 @@ linters:
     - testpackage
     - varnamelen
     - depguard
-    - gci
     - ireturn
-linters-settings: 
-  lll: 
-    line-length: 120
-  goimports: 
-    local-prefixes: github.com/vitoordaz/robinhood-export
-  revive: 
-    rules: 
-      - name: empty-block
-        disabled: true
-  tagliatelle: 
-    case: 
-      use-field-name: true
-      rules: 
-        json: snake
-issues: 
-  exclude-rules: 
-    - path: cmd/robinhood-export/main.go
-      linters: 
-        - gochecknoglobals
+  settings:
+    lll:
+      line-length: 120
+    revive:
+      rules:
+        - name: empty-block
+          disabled: true
+    tagliatelle:
+      case:
+        use-field-name: true
+        rules:
+          json: snake
+  exclusions:
+    rules:
+      - path: cmd/robinhood-export/main.go
+        linters:
+          - gochecknoglobals
+formatters:
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/vitoordaz/robinhood-export
