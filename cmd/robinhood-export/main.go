@@ -1,25 +1,18 @@
 package main
 
 import (
-	"bufio"
-	"context"
-	"errors"
 	"flag"
-	"fmt"
 	"log"
 	"os"
-	"strings"
-
-	"golang.org/x/term"
-
-	"github.com/vitoordaz/robinhood-export/internal/robinhood"
 )
 
 type arguments struct {
-	username string // -u, robinhood account username or email
-	output   string // -o, path to output file
-	verbose  bool   // -v, enable verbose messages
-	all      bool   // -a, return everything
+	username        string // -u, robinhood account username or email
+	pathToTokenFile string // -t, path to token file
+	output          string // -o, path to output file
+	verbose         bool   // -v, enable verbose messages
+	all             bool   // -a, return everything
+	format          string // -f, output format: json or csv
 }
 
 const (
@@ -38,10 +31,12 @@ var (
 	dividendsCmdOutput   = dividendsCmd.String("o", "", "path to output file.")                 // optional
 	dividendsCmdVerbose  = dividendsCmd.Bool("v", false, "enable verbose messages.")            // optional
 
-	ordersCmd         = flag.NewFlagSet("orders", flag.ExitOnError)
-	ordersCmdUsername = ordersCmd.String("u", "", "Robinhood account username or email.") // optional
-	ordersCmdOutput   = ordersCmd.String("o", "", "path to output file.")                 // optional
-	ordersCmdVerbose  = ordersCmd.Bool("v", false, "enable verbose messages.")            // optional
+	ordersCmd              = flag.NewFlagSet("orders", flag.ExitOnError)
+	ordersCmdUsername      = ordersCmd.String("u", "", "Robinhood account username or email.") // optional
+	ordersCmdPathTokenFile = ordersCmd.String("t", "", "path to token file")                   // optional
+	ordersCmdOutput        = ordersCmd.String("o", "", "path to output file.")                 // optional
+	ordersCmdVerbose       = ordersCmd.Bool("v", false, "enable verbose messages.")            // optional
+	ordersCmdFormat        = ordersCmd.String("f", "json", "output format, json or csv.")      // optional
 
 	positionsCmd         = flag.NewFlagSet("positions", flag.ExitOnError)
 	positionsCmdUsername = positionsCmd.String("u", "", "Robinhood account username or email.") // optional
@@ -90,7 +85,13 @@ func main() {
 			ordersCmd.Usage()
 			os.Exit(exitCodeError)
 		}
-		doOrders(arguments{username: *ordersCmdUsername, verbose: *ordersCmdVerbose, output: *ordersCmdOutput})
+		doOrders(arguments{
+			username:        *ordersCmdUsername,
+			pathToTokenFile: *ordersCmdPathTokenFile,
+			verbose:         *ordersCmdVerbose,
+			output:          *ordersCmdOutput,
+			format:          *ordersCmdFormat,
+		})
 		os.Exit(exitCodeOk)
 	case "positions":
 		if err := positionsCmd.Parse(os.Args[2:]); err != nil {
@@ -109,81 +110,4 @@ func main() {
 		flag.Usage()
 		os.Exit(exitCodeError)
 	}
-}
-
-func readLine(reader *bufio.Reader) (string, error) {
-	line, isPrefix, err := reader.ReadLine()
-	if err != nil {
-		return "", err
-	}
-	if isPrefix {
-		return "", errors.New("line is too long")
-	}
-	return string(line), nil
-}
-
-func getAuthToken(
-	ctx context.Context,
-	client robinhood.Client,
-	username string,
-) (*robinhood.ResponseToken, error) {
-	password := ""
-	reader := bufio.NewReader(os.Stdin)
-	for username == "" || password == "" {
-		if username == "" {
-			fmt.Print("Enter username (email): ")
-			line, err := readLine(reader)
-			if err != nil {
-				return nil, err
-			}
-			username = strings.TrimSpace(line)
-			if username == "" {
-				logError.Println("username (email) is required")
-				continue
-			}
-		}
-		if password == "" {
-			fmt.Print("Enter password: ")
-			line, err := term.ReadPassword(0)
-			if err != nil {
-				return nil, fmt.Errorf("ERROR: %w", err)
-			}
-			password = strings.TrimSpace(string(line))
-			fmt.Println() // NOTE: term.ReadPassword doesn't add new line after enter
-			if password == "" {
-				logError.Println("password is required")
-				continue
-			}
-		}
-	}
-	var (
-		err  error
-		resp *robinhood.ResponseToken
-		mfa  = ""
-	)
-	for resp == nil || resp.AccessToken == "" {
-		msg := "Trying to log in using username, password"
-		if mfa != "" {
-			msg += " and OTP code"
-		}
-		logVerbose.Println(msg)
-		resp, err = client.GetToken(ctx, username, password, mfa)
-		if err != nil {
-			return nil, err
-		}
-		if resp.MFARequired {
-			fmt.Print("Enter OTP code: ")
-			line, err := readLine(reader)
-			if err != nil {
-				return nil, err
-			}
-			mfa = strings.TrimSpace(line)
-			if mfa == "" {
-				logError.Println("OTP code is required")
-				continue
-			}
-		}
-	}
-	logVerbose.Println("Successfully logged in")
-	return resp, nil
 }

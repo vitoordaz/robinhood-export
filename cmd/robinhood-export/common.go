@@ -1,7 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
+	"strings"
+
+	"golang.org/x/term"
 
 	"github.com/vitoordaz/robinhood-export/internal/robinhood"
 	"github.com/vitoordaz/robinhood-export/internal/utils"
@@ -54,4 +62,93 @@ func getMarketByURL(markets []*robinhood.Market) map[string]*robinhood.Market {
 		marketByURL[market.URL] = market
 	}
 	return marketByURL
+}
+
+func readLine(reader *bufio.Reader) (string, error) {
+	line, isPrefix, err := reader.ReadLine()
+	if err != nil {
+		return "", err
+	}
+	if isPrefix {
+		return "", errors.New("line is too long")
+	}
+	return string(line), nil
+}
+
+func getAuthToken(
+	ctx context.Context,
+	client robinhood.Client,
+	username string,
+) (*robinhood.ResponseToken, error) {
+	password := ""
+	reader := bufio.NewReader(os.Stdin)
+	for username == "" || password == "" {
+		if username == "" {
+			fmt.Print("Enter username (email): ")
+			line, err := readLine(reader)
+			if err != nil {
+				return nil, err
+			}
+			username = strings.TrimSpace(line)
+			if username == "" {
+				logError.Println("username (email) is required")
+				continue
+			}
+		}
+		if password == "" {
+			fmt.Print("Enter password: ")
+			line, err := term.ReadPassword(0)
+			if err != nil {
+				return nil, fmt.Errorf("ERROR: %w", err)
+			}
+			password = strings.TrimSpace(string(line))
+			fmt.Println() // NOTE: term.ReadPassword doesn't add new line after enter
+			if password == "" {
+				logError.Println("password is required")
+				continue
+			}
+		}
+	}
+	var (
+		err  error
+		resp *robinhood.ResponseToken
+		mfa  = ""
+	)
+	for resp == nil || resp.AccessToken == "" {
+		msg := "Trying to log in using username, password"
+		if mfa != "" {
+			msg += " and OTP code"
+		}
+		logVerbose.Println(msg)
+		resp, err = client.GetToken(ctx, username, password, mfa)
+		if err != nil {
+			return nil, err
+		}
+		if resp.MFARequired {
+			fmt.Print("Enter OTP code: ")
+			line, err := readLine(reader)
+			if err != nil {
+				return nil, err
+			}
+			mfa = strings.TrimSpace(line)
+			if mfa == "" {
+				logError.Println("OTP code is required")
+				continue
+			}
+		}
+	}
+	logVerbose.Println("Successfully logged in")
+	return resp, nil
+}
+
+func getAuthTokenFromFile(pathToTokenFile string) (*robinhood.ResponseToken, error) {
+	data, err := os.ReadFile(pathToTokenFile)
+	if err != nil {
+		return nil, err
+	}
+	resp := &robinhood.ResponseToken{}
+	if err = json.Unmarshal(data, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }

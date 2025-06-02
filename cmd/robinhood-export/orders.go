@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -20,31 +21,66 @@ func doOrders(args arguments) {
 	defer cancel()
 	client := robinhood.New()
 
-	token, err := getAuthToken(ctx, client, args.username)
+	var (
+		token *robinhood.ResponseToken
+		err   error
+	)
+	if args.pathToTokenFile == "" {
+		token, err = getAuthToken(ctx, client, args.username)
+	} else {
+		token, err = getAuthTokenFromFile(args.pathToTokenFile)
+	}
 	if err != nil {
 		logError.Fatalln(err)
 	}
+
+	var outputFunc func(f *os.File) error
 
 	logVerbose.Println("loading orders")
-	orders, err := loadOrders(ctx, client, token)
-	if err != nil {
-		logError.Fatalln(err)
-	}
-	logVerbose.Printf("loaded %d orders\n", len(orders))
+	switch args.format {
+	case "json":
+		orders, err := loadOrders(
+			ctx,
+			func(ctx context.Context, cursor string) (*robinhood.ResponseList[map[string]any], error) {
+				return client.GetItems(ctx, robinhood.EndpointOrders, token, cursor)
+			},
+		)
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d orders\n", len(orders))
 
-	logVerbose.Println("loading instruments")
-	instruments, err := loadInstruments(ctx, client, getOrdersInstrumentIds(orders))
-	if err != nil {
-		logError.Fatalln(err)
-	}
-	logVerbose.Printf("loaded %d instruments\n", len(instruments))
+		outputFunc = func(f *os.File) error { return outputOrdersJSON(f, orders) }
+	case "csv":
+		orders, err := loadOrders(
+			ctx,
+			func(ctx context.Context, cursor string) (*robinhood.ResponseList[*robinhood.Order], error) {
+				return client.GetOrders(ctx, token, cursor)
+			},
+		)
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d orders\n", len(orders))
 
-	logVerbose.Println("loading markets")
-	markets, err := loadMarkets(ctx, client, getInstrumentsMarketIds(instruments))
-	if err != nil {
-		logError.Fatalln(err)
+		logVerbose.Println("loading instruments")
+		instruments, err := loadInstruments(ctx, client, getOrdersInstrumentIds(orders))
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d instruments\n", len(instruments))
+
+		logVerbose.Println("loading markets")
+		markets, err := loadMarkets(ctx, client, getInstrumentsMarketIds(instruments))
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d markets\n", len(markets))
+
+		outputFunc = func(f *os.File) error { return outputOrdersCSV(f, orders, instruments, markets) }
+	default:
+		logError.Fatalln("unsupported output format " + args.format)
 	}
-	logVerbose.Printf("loaded %d markets\n", len(markets))
 
 	var f *os.File
 	if args.output == "" {
@@ -59,18 +95,18 @@ func doOrders(args arguments) {
 			}
 		}()
 	}
-	if err := outputOrders(f, orders, instruments, markets); err != nil {
+
+	if err := outputFunc(f); err != nil {
 		logError.Fatalln(err)
 	}
 }
 
-func loadOrders(
+func loadOrders[T any](
 	ctx context.Context,
-	client robinhood.Client,
-	token *robinhood.ResponseToken,
-) ([]*robinhood.Order, error) {
-	orders, err := utils.LoadList(ctx, func(c context.Context, cursor string) ([]*robinhood.Order, string, error) {
-		result, err := client.GetOrders(c, token, cursor)
+	getItemsFunc func(ctx context.Context, cursor string) (*robinhood.ResponseList[T], error),
+) ([]T, error) {
+	items, err := utils.LoadList(ctx, func(c context.Context, cursor string) ([]T, string, error) {
+		result, err := getItemsFunc(c, cursor)
 		if err != nil {
 			return nil, "", err
 		}
@@ -79,7 +115,7 @@ func loadOrders(
 	if err != nil {
 		return nil, err
 	}
-	return orders, nil
+	return items, nil
 }
 
 func getOrdersInstrumentIds(orders []*robinhood.Order) []string {
@@ -88,7 +124,7 @@ func getOrdersInstrumentIds(orders []*robinhood.Order) []string {
 	})
 }
 
-func outputOrders(
+func outputOrdersCSV(
 	w io.Writer,
 	orders []*robinhood.Order,
 	instruments []*robinhood.Instrument,
@@ -138,5 +174,15 @@ func outputOrders(
 		}
 	}
 	writer.Flush()
+	return nil
+}
+
+func outputOrdersJSON(w io.Writer, orders []map[string]any) error {
+	encoder := json.NewEncoder(w)
+	for _, order := range orders {
+		if err := encoder.Encode(order); err != nil {
+			return err
+		}
+	}
 	return nil
 }
