@@ -5,14 +5,25 @@ import (
 	"os"
 )
 
-func doHelp(cmd string) {
-	switch cmd {
+func doHelp(cmd []string) {
+	switch cmd[0] {
 	case "dividends":
 		dividendsCmd.Usage()
+	case "options":
+		if len(cmd) < 2 {
+			printUsage()
+		} else {
+			switch cmd[1] {
+			case "orders":
+				optionsOrdersCmd.Usage()
+			}
+		}
 	case "orders":
 		ordersCmd.Usage()
 	case "positions":
 		positionsCmd.Usage()
+	default:
+		printUsage()
 	}
 }
 
@@ -22,9 +33,10 @@ func printUsage() {
 	fmt.Printf("	%s <command> [arguments]\n\n", os.Args[0])
 	fmt.Println(`The commands are:`)
 	fmt.Println()
-	fmt.Println(`	dividends	exports all dividends`)
-	fmt.Println(`	orders		exports all orders`)
-	fmt.Println(`	positions	exports all positions`)
+	fmt.Println(`	dividends      exports all dividends`)
+	fmt.Println(`	options orders exports all options orders`)
+	fmt.Println(`	orders         exports all orders`)
+	fmt.Println(`	positions      exports all positions`)
 	fmt.Println()
 	fmt.Printf("Use '%s help <command>' for more information about a command.\n\n", os.Args[0])
 }
@@ -46,4 +58,9 @@ func printOrdersUsage() {
 func printPositionsUsage() {
 	fmt.Printf("Usage: %s positions [arguments]\n", os.Args[0])
 	positionsCmd.PrintDefaults()
+}
+
+func printOptionOrdersUsage() {
+	fmt.Printf("Usage: %s options orders [arguments]\n", os.Args[0])
+	optionsOrdersCmd.PrintDefaults()
 }

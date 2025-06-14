@@ -10,6 +10,7 @@ linters:
     - forbidigo
     - funlen
     - gocognit
+    - goconst
     - gosec
     - govet
     - nlreturn

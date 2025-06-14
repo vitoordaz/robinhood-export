@@ -1,13 +1,14 @@
 package robinhood
 
 const (
-	EndpointAccounts   = "https://api.robinhood.com/accounts/"
-	EndpointDividends  = "https://api.robinhood.com/dividends/"
-	EndpointInstrument = "https://api.robinhood.com/instruments/"
-	EndpointMarket     = "https://api.robinhood.com/markets/"
-	EndpointToken      = "https://api.robinhood.com/oauth2/token/"
-	EndpointOrders     = "https://api.robinhood.com/orders/"
-	EndpointPositions  = "https://api.robinhood.com/positions/"
+	EndpointAccounts      = "https://api.robinhood.com/accounts/"
+	EndpointDividends     = "https://api.robinhood.com/dividends/"
+	EndpointInstrument    = "https://api.robinhood.com/instruments/"
+	EndpointMarket        = "https://api.robinhood.com/markets/"
+	EndpointToken         = "https://api.robinhood.com/oauth2/token/"
+	EndpointOptionsOrders = "https://api.robinhood.com/options/orders/"
+	EndpointOrders        = "https://api.robinhood.com/orders/"
+	EndpointPositions     = "https://api.robinhood.com/positions/"
 )
 
 type RequestToken struct {

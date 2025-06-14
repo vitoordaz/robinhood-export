@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -39,7 +38,7 @@ func doOrders(args arguments) {
 	logVerbose.Println("loading orders")
 	switch args.format {
 	case "json":
-		orders, err := loadOrders(
+		orders, err := loadItems(
 			ctx,
 			func(ctx context.Context, cursor string) (*robinhood.ResponseList[map[string]any], error) {
 				return client.GetItems(ctx, robinhood.EndpointOrders, token, cursor)
@@ -50,9 +49,9 @@ func doOrders(args arguments) {
 		}
 		logVerbose.Printf("loaded %d orders\n", len(orders))
 
-		outputFunc = func(f *os.File) error { return outputOrdersJSON(f, orders) }
+		outputFunc = func(f *os.File) error { return outputItemsJSON(f, orders) }
 	case "csv":
-		orders, err := loadOrders(
+		orders, err := loadItems(
 			ctx,
 			func(ctx context.Context, cursor string) (*robinhood.ResponseList[*robinhood.Order], error) {
 				return client.GetOrders(ctx, token, cursor)
@@ -99,23 +98,6 @@ func doOrders(args arguments) {
 	if err := outputFunc(f); err != nil {
 		logError.Fatalln(err)
 	}
-}
-
-func loadOrders[T any](
-	ctx context.Context,
-	getItemsFunc func(ctx context.Context, cursor string) (*robinhood.ResponseList[T], error),
-) ([]T, error) {
-	items, err := utils.LoadList(ctx, func(c context.Context, cursor string) ([]T, string, error) {
-		result, err := getItemsFunc(c, cursor)
-		if err != nil {
-			return nil, "", err
-		}
-		return result.Results, result.Next, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 func getOrdersInstrumentIds(orders []*robinhood.Order) []string {
@@ -174,15 +156,5 @@ func outputOrdersCSV(
 		}
 	}
 	writer.Flush()
-	return nil
-}
-
-func outputOrdersJSON(w io.Writer, orders []map[string]any) error {
-	encoder := json.NewEncoder(w)
-	for _, order := range orders {
-		if err := encoder.Encode(order); err != nil {
-			return err
-		}
-	}
 	return nil
 }

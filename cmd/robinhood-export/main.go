@@ -43,6 +43,13 @@ var (
 	positionsCmdOutput   = positionsCmd.String("o", "", "path to output file.")                 // optional
 	positionsCmdAll      = positionsCmd.Bool("a", false, "return all positions (even closed).") // optional
 	positionsCmdVerbose  = positionsCmd.Bool("v", false, "enable verbose messages.")            // optional
+
+	optionsOrdersCmd              = flag.NewFlagSet("options orders", flag.ExitOnError)
+	optionsOrdersCmdUsername      = optionsOrdersCmd.String("u", "", "Robinhood account username or email.") // optional
+	optionsOrdersCmdPathTokenFile = optionsOrdersCmd.String("t", "", "path to token file")                   // optional
+	optionsOrdersCmdOutput        = optionsOrdersCmd.String("o", "", "path to output file.")                 // optional
+	optionsOrdersCmdVerbose       = optionsOrdersCmd.Bool("v", false, "enable verbose messages.")            // optional
+	optionsOrdersCmdFormat        = optionsOrdersCmd.String("f", "json", "output format, json or csv.")      // optional
 )
 
 func main() {
@@ -57,6 +64,7 @@ func main() {
 	helpCmd.Usage = printHelpUsage
 	ordersCmd.Usage = printOrdersUsage
 	positionsCmd.Usage = printPositionsUsage
+	optionsOrdersCmd.Usage = printOptionOrdersUsage
 
 	switch flag.Arg(0) {
 	case "dividends":
@@ -73,11 +81,13 @@ func main() {
 		os.Exit(exitCodeError)
 	case "help":
 		if err := helpCmd.Parse(os.Args[2:]); err != nil || len(helpCmd.Args()) < 1 {
-			logError.Println(err)
+			if err != nil {
+				logError.Println(err)
+			}
 			helpCmd.Usage()
 			os.Exit(exitCodeError)
 		}
-		doHelp(helpCmd.Arg(0))
+		doHelp(helpCmd.Args())
 		os.Exit(exitCodeOk)
 	case "orders":
 		if err := ordersCmd.Parse(os.Args[2:]); err != nil {
@@ -106,6 +116,26 @@ func main() {
 			all:      *positionsCmdAll,
 		})
 		os.Exit(exitCodeOk)
+	case "options":
+		switch flag.Arg(1) {
+		case "orders":
+			if err := optionsOrdersCmd.Parse(os.Args[3:]); err != nil {
+				logError.Println(err)
+				optionsOrdersCmd.Usage()
+				os.Exit(exitCodeError)
+			}
+			doOptionsOrders(arguments{
+				username:        *optionsOrdersCmdUsername,
+				pathToTokenFile: *optionsOrdersCmdPathTokenFile,
+				verbose:         *optionsOrdersCmdVerbose,
+				output:          *optionsOrdersCmdOutput,
+				format:          *optionsOrdersCmdFormat,
+			})
+			os.Exit(exitCodeOk)
+		default:
+			flag.Usage()
+			os.Exit(exitCodeError)
+		}
 	default:
 		flag.Usage()
 		os.Exit(exitCodeError)

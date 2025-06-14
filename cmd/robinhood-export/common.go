@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -151,4 +152,31 @@ func getAuthTokenFromFile(pathToTokenFile string) (*robinhood.ResponseToken, err
 		return nil, err
 	}
 	return resp, nil
+}
+
+func outputItemsJSON(w io.Writer, items []map[string]any) error {
+	encoder := json.NewEncoder(w)
+	for _, item := range items {
+		if err := encoder.Encode(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func loadItems[T any](
+	ctx context.Context,
+	getItemsFunc func(ctx context.Context, cursor string) (*robinhood.ResponseList[T], error),
+) ([]T, error) {
+	items, err := utils.LoadList(ctx, func(c context.Context, cursor string) ([]T, string, error) {
+		result, err := getItemsFunc(c, cursor)
+		if err != nil {
+			return nil, "", err
+		}
+		return result.Results, result.Next, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return items, nil
 }
