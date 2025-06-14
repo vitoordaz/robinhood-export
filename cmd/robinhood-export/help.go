@@ -12,11 +12,8 @@ func doHelp(cmd []string) {
 	case "options":
 		if len(cmd) < 2 {
 			printUsage()
-		} else {
-			switch cmd[1] {
-			case "orders":
-				optionsOrdersCmd.Usage()
-			}
+		} else if cmd[1] == "orders" {
+			optionsOrdersCmd.Usage()
 		}
 	case "orders":
 		ordersCmd.Usage()
