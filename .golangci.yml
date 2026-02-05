@@ -22,6 +22,8 @@ linters:
     - varnamelen
     - depguard
     - ireturn
+    - noinlineerr
+    - wsl_v5
   settings:
     lll:
       line-length: 120

@@ -13,7 +13,7 @@ func TestGetIDs(t *testing.T) {
 	}
 
 	deduplicated := make([]string, 0, 100)
-	var duplicates []*item
+	duplicates := make([]*item, 0, 200)
 	for i := range 100 {
 		id := strconv.FormatInt(int64(i), 10)
 		deduplicated = append(deduplicated, id)

@@ -25,7 +25,7 @@ func LoadDetails[T any](ctx context.Context, ids []string, loadFunc ItemLoadFunc
 			wg.Wait() // wait for all requests to complete before closing resultsCh
 			close(valuesCh)
 		}()
-		sem := make(chan interface{}, maxConcurrency)
+		sem := make(chan any, maxConcurrency)
 		for _, id := range ids {
 			wg.Add(1)
 			select {
