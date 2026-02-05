@@ -1,7 +1,7 @@
 ALL: clean lint test build
 
 build:
-	go build -mod=vendor -o build/robinhood-export cmd/robinhood-export/*.go
+	go build -o build/robinhood-export cmd/robinhood-export/*.go
 
 lint: gofmt goimports
 	docker run --rm -e LOG_LEVEL=error -v $(PWD):/app -w /app golangci/golangci-lint:v2.8-alpine golangci-lint run -v
