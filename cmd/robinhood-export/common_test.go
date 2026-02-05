@@ -33,7 +33,6 @@ func TestLoadMarkets(t *testing.T) {
 		{[]string{"m1", "m2", "m3"}, true},
 	}
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(fmt.Sprintf("loadMarkets(%s)", strings.Join(tc.ids, ", ")), func(t *testing.T) {
 			t.Parallel()
 			markets, err := loadMarkets(context.Background(), mockClient, tc.ids)

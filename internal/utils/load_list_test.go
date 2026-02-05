@@ -16,8 +16,8 @@ func TestLoadList(t *testing.T) {
 		Field int
 	}
 
-	var items []*item
-	for i := 0; i < 100; i++ {
+	items := make([]*item, 0, 100)
+	for i := range 100 {
 		items = append(items, &item{Field: i})
 	}
 

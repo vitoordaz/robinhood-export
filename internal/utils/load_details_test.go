@@ -20,7 +20,7 @@ func TestLoadDetails(t *testing.T) {
 	ids := make([]string, 0, 100)
 	items := make([]*item, 0, 100)
 	itemByID := make(map[string]*item, 100)
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		id := strconv.FormatInt(int64(i), 10)
 		ids = append(ids, id)
 		ii := &item{Field: i}
