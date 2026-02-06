@@ -20,34 +20,62 @@ func doPositions(args arguments) {
 	defer cancel()
 	client := robinhood.New()
 
-	token, err := getAuthToken(ctx, client, args.username)
+	var (
+		token *robinhood.ResponseToken
+		err   error
+	)
+	if args.pathToTokenFile == "" {
+		token, err = getAuthToken(ctx, client, args.username)
+	} else {
+		token, err = getAuthTokenFromFile(args.pathToTokenFile)
+	}
 	if err != nil {
 		logError.Fatalln(err)
 	}
+
+	var outputFunc func(f *os.File) error
 
 	logVerbose.Println("loading positions")
-	positions, err := loadPositions(ctx, client, token)
-	if err != nil {
-		logError.Fatalln(err)
-	}
-	if !args.all {
-		positions = getOpenPositions(positions)
-	}
-	logVerbose.Printf("loaded %d positions\n", len(positions))
+	switch args.format {
+	case "json":
+		positions, err := loadItems(
+			ctx,
+			func(ctx context.Context, cursor string) (*robinhood.ResponseList[map[string]any], error) {
+				return client.GetItems(ctx, robinhood.EndpointPositions, token, cursor)
+			},
+		)
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d positions\n", len(positions))
+		outputFunc = func(f *os.File) error { return outputItemsJSON(f, positions) }
+	case "csv":
+		positions, err := loadPositions(ctx, client, token)
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		if !args.all {
+			positions = getOpenPositions(positions)
+		}
+		logVerbose.Printf("loaded %d positions\n", len(positions))
 
-	logVerbose.Println("loading instruments")
-	instruments, err := loadInstruments(ctx, client, getPositionsInstrumentIds(positions))
-	if err != nil {
-		logError.Fatalln(err)
-	}
-	logVerbose.Printf("loaded %d instruments\n", len(instruments))
+		logVerbose.Println("loading instruments")
+		instruments, err := loadInstruments(ctx, client, getPositionsInstrumentIds(positions))
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d instruments\n", len(instruments))
 
-	logVerbose.Println("loading markets")
-	markets, err := loadMarkets(ctx, client, getInstrumentsMarketIds(instruments))
-	if err != nil {
-		logError.Fatalln(err)
+		logVerbose.Println("loading markets")
+		markets, err := loadMarkets(ctx, client, getInstrumentsMarketIds(instruments))
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Println("loading markets")
+		outputFunc = func(f *os.File) error { return outputPositionsCSV(f, positions, instruments, markets) }
+	default:
+		logError.Fatalln("unsupported output format " + args.format)
 	}
-	logVerbose.Println("loading markets")
 
 	var f *os.File
 	if args.output == "" {
@@ -62,7 +90,7 @@ func doPositions(args arguments) {
 			}
 		}()
 	}
-	if err := outputPositions(f, positions, instruments, markets); err != nil {
+	if err := outputFunc(f); err != nil {
 		logError.Fatalln(err)
 	}
 }
@@ -102,7 +130,7 @@ func getOpenPositions(positions []*robinhood.Position) []*robinhood.Position {
 	return result
 }
 
-func outputPositions(
+func outputPositionsCSV(
 	w io.Writer,
 	positions []*robinhood.Position,
 	instruments []*robinhood.Instrument,

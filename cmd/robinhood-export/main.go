@@ -40,11 +40,13 @@ var (
 	ordersCmdVerbose       = ordersCmd.Bool("v", false, "enable verbose messages.")            // optional
 	ordersCmdFormat        = ordersCmd.String("f", "json", "output format, json or csv.")      // optional
 
-	positionsCmd         = flag.NewFlagSet("positions", flag.ExitOnError)
-	positionsCmdUsername = positionsCmd.String("u", "", "Robinhood account username or email.") // optional
-	positionsCmdOutput   = positionsCmd.String("o", "", "path to output file.")                 // optional
-	positionsCmdAll      = positionsCmd.Bool("a", false, "return all positions (even closed).") // optional
-	positionsCmdVerbose  = positionsCmd.Bool("v", false, "enable verbose messages.")            // optional
+	positionsCmd              = flag.NewFlagSet("positions", flag.ExitOnError)
+	positionsCmdUsername      = positionsCmd.String("u", "", "Robinhood account username or email.") // optional
+	positionsCmdPathTokenFile = positionsCmd.String("t", "", "path to token file")                   // optional
+	positionsCmdOutput        = positionsCmd.String("o", "", "path to output file.")                 // optional
+	positionsCmdAll           = positionsCmd.Bool("a", false, "return all positions (even closed).") // optional
+	positionsCmdVerbose       = positionsCmd.Bool("v", false, "enable verbose messages.")            // optional
+	positionsCmdFormat        = positionsCmd.String("f", "json", "output format, json or csv.")      // optional
 
 	optionsOrdersCmd              = flag.NewFlagSet("options orders", flag.ExitOnError)
 	optionsOrdersCmdUsername      = optionsOrdersCmd.String("u", "", "Robinhood account username or email.") // optional
@@ -114,10 +116,12 @@ func main() {
 			os.Exit(exitCodeError)
 		}
 		doPositions(arguments{
-			username: *positionsCmdUsername,
-			verbose:  *positionsCmdVerbose,
-			output:   *positionsCmdOutput,
-			all:      *positionsCmdAll,
+			username:        *positionsCmdUsername,
+			pathToTokenFile: *positionsCmdPathTokenFile,
+			verbose:         *positionsCmdVerbose,
+			output:          *positionsCmdOutput,
+			all:             *positionsCmdAll,
+			format:          *positionsCmdFormat,
 		})
 		os.Exit(exitCodeOk)
 	case "options":
