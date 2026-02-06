@@ -20,31 +20,59 @@ func doDividends(args arguments) {
 	defer cancel()
 	client := robinhood.New()
 
-	token, err := getAuthToken(ctx, client, args.username)
+	var (
+		token *robinhood.ResponseToken
+		err   error
+	)
+	if args.pathToTokenFile == "" {
+		token, err = getAuthToken(ctx, client, args.username)
+	} else {
+		token, err = getAuthTokenFromFile(args.pathToTokenFile)
+	}
 	if err != nil {
 		logError.Fatalln(err)
 	}
+
+	var outputFunc func(f *os.File) error
 
 	logVerbose.Println("loading dividends")
-	dividends, err := loadDividends(ctx, client, token)
-	if err != nil {
-		logError.Fatalln(err)
-	}
-	logVerbose.Printf("loaded %d dividends\n", len(dividends))
+	switch args.format {
+	case "json":
+		dividends, err := loadItems(
+			ctx,
+			func(ctx context.Context, cursor string) (*robinhood.ResponseList[map[string]any], error) {
+				return client.GetItems(ctx, robinhood.EndpointDividends, token, cursor)
+			},
+		)
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d dividends\n", len(dividends))
+		outputFunc = func(f *os.File) error { return outputItemsJSON(f, dividends) }
+	case "csv":
+		dividends, err := loadDividends(ctx, client, token)
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d dividends\n", len(dividends))
 
-	logVerbose.Println("loading accounts")
-	accounts, err := loadAccounts(ctx, client, token, getDividendsAccountIds(dividends))
-	if err != nil {
-		logError.Fatalln(err)
-	}
-	logVerbose.Printf("loaded %d accounts\n", len(accounts))
+		logVerbose.Println("loading accounts")
+		accounts, err := loadAccounts(ctx, client, token, getDividendsAccountIds(dividends))
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d accounts\n", len(accounts))
 
-	logVerbose.Println("loading instruments")
-	instruments, err := loadInstruments(ctx, client, getDividendsInstrumentIds(dividends))
-	if err != nil {
-		logError.Fatalln(err)
+		logVerbose.Println("loading instruments")
+		instruments, err := loadInstruments(ctx, client, getDividendsInstrumentIds(dividends))
+		if err != nil {
+			logError.Fatalln(err)
+		}
+		logVerbose.Printf("loaded %d instruments\n", len(instruments))
+		outputFunc = func(f *os.File) error { return outputDividendsCSV(f, dividends, accounts, instruments) }
+	default:
+		logError.Fatalln("unsupported output format " + args.format)
 	}
-	logVerbose.Printf("loaded %d instruments\n", len(instruments))
 
 	var f *os.File
 	if args.output == "" {
@@ -59,7 +87,7 @@ func doDividends(args arguments) {
 			}
 		}()
 	}
-	if err := outputDividends(f, dividends, accounts, instruments); err != nil {
+	if err := outputFunc(f); err != nil {
 		logError.Fatalln(err)
 	}
 }
@@ -90,7 +118,7 @@ func getDividendsAccountIds(dividends []*robinhood.Dividend) []string {
 	})
 }
 
-func outputDividends(
+func outputDividendsCSV(
 	w io.Writer,
 	dividends []*robinhood.Dividend,
 	accounts []*robinhood.Account,

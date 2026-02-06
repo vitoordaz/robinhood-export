@@ -26,10 +26,12 @@ var (
 
 	helpCmd = flag.NewFlagSet("help", flag.ExitOnError)
 
-	dividendsCmd         = flag.NewFlagSet("dividends", flag.ExitOnError)
-	dividendsCmdUsername = dividendsCmd.String("u", "", "Robinhood account username or email.") // optional
-	dividendsCmdOutput   = dividendsCmd.String("o", "", "path to output file.")                 // optional
-	dividendsCmdVerbose  = dividendsCmd.Bool("v", false, "enable verbose messages.")            // optional
+	dividendsCmd              = flag.NewFlagSet("dividends", flag.ExitOnError)
+	dividendsCmdPathTokenFile = dividendsCmd.String("t", "", "path to token file")                   // optional
+	dividendsCmdUsername      = dividendsCmd.String("u", "", "Robinhood account username or email.") // optional
+	dividendsCmdOutput        = dividendsCmd.String("o", "", "path to output file.")                 // optional
+	dividendsCmdVerbose       = dividendsCmd.Bool("v", false, "enable verbose messages.")            // optional
+	dividendsCmdFormat        = dividendsCmd.String("f", "json", "output format, json or csv.")      // optional
 
 	ordersCmd              = flag.NewFlagSet("orders", flag.ExitOnError)
 	ordersCmdUsername      = ordersCmd.String("u", "", "Robinhood account username or email.") // optional
@@ -74,9 +76,11 @@ func main() {
 			os.Exit(exitCodeError)
 		}
 		doDividends(arguments{
-			username: *dividendsCmdUsername,
-			verbose:  *dividendsCmdVerbose,
-			output:   *dividendsCmdOutput,
+			username:        *dividendsCmdUsername,
+			pathToTokenFile: *dividendsCmdPathTokenFile,
+			verbose:         *dividendsCmdVerbose,
+			output:          *dividendsCmdOutput,
+			format:          *dividendsCmdFormat,
 		})
 		os.Exit(exitCodeError)
 	case "help":
