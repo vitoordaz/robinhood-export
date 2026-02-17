@@ -50,21 +50,5 @@ func doOptionsOrders(args arguments) {
 		logError.Fatalln("unsupported output format " + args.format)
 	}
 
-	var f *os.File
-	if args.output == "" {
-		f = os.Stdout
-	} else {
-		if f, err = os.Create(args.output); err != nil {
-			logError.Fatalln(err)
-		}
-		defer func() {
-			if err := f.Close(); err != nil {
-				logError.Println(err) // still exit with code 0, because this error is not critical
-			}
-		}()
-	}
-
-	if err := outputFunc(f); err != nil {
-		logError.Fatalln(err)
-	}
+	outputData(args.output, outputFunc)
 }

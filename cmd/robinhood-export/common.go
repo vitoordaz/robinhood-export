@@ -180,3 +180,26 @@ func loadItems[T any](
 	}
 	return items, nil
 }
+
+func outputData(outputFile string, outputFunc func(*os.File) error) {
+	var (
+		f   *os.File
+		err error
+	)
+	if outputFile == "" {
+		f = os.Stdout
+	} else {
+		if f, err = os.Create(outputFile); err != nil {
+			logError.Fatalln(err)
+		}
+		defer func() {
+			if err := f.Close(); err != nil {
+				// still exit with code 0, because this error is not critical
+				logError.Println(err)
+			}
+		}()
+	}
+	if err := outputFunc(f); err != nil {
+		logError.Fatalln(err)
+	}
+}
