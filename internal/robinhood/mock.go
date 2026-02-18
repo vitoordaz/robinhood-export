@@ -9,6 +9,7 @@ type MockClient struct {
 		auth *ResponseToken,
 		cursor string,
 	) (*ResponseList[map[string]any], error)
+	ListAccountsFunc  func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Account], error)
 	GetAccountFunc    func(ctx context.Context, auth *ResponseToken, id string) (*Account, error)
 	GetDividendsFunc  func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Dividend], error)
 	GetInstrumentFunc func(ctx context.Context, id string) (*Instrument, error)
@@ -28,6 +29,17 @@ func (c *MockClient) GetItems(
 		return c.GetItemsFunc(ctx, endpoint, auth, cursor)
 	}
 	return &ResponseList[map[string]any]{}, nil
+}
+
+func (c *MockClient) ListAccounts(
+	ctx context.Context,
+	auth *ResponseToken,
+	cursor string,
+) (*ResponseList[*Account], error) {
+	if c.ListAccountsFunc != nil {
+		return c.ListAccountsFunc(ctx, auth, cursor)
+	}
+	return &ResponseList[*Account]{}, nil
 }
 
 func (c *MockClient) GetAccount(ctx context.Context, auth *ResponseToken, id string) (*Account, error) {

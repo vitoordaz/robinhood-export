@@ -26,6 +26,13 @@ var (
 
 	helpCmd = flag.NewFlagSet("help", flag.ExitOnError)
 
+	accountsCmd              = flag.NewFlagSet("accounts", flag.ExitOnError)
+	accountsCmdPathTokenFile = accountsCmd.String("t", "", "path to token file")                   // optional
+	accountsCmdUsername      = accountsCmd.String("u", "", "Robinhood account username or email.") // optional
+	accountsCmdOutput        = accountsCmd.String("o", "", "path to output file.")                 // optional
+	accountsCmdVerbose       = accountsCmd.Bool("v", false, "enable verbose messages.")            // optional
+	accountsCmdFormat        = accountsCmd.String("f", "json", "output format, json or csv.")      // optional
+
 	dividendsCmd              = flag.NewFlagSet("dividends", flag.ExitOnError)
 	dividendsCmdPathTokenFile = dividendsCmd.String("t", "", "path to token file")                   // optional
 	dividendsCmdUsername      = dividendsCmd.String("u", "", "Robinhood account username or email.") // optional
@@ -64,6 +71,7 @@ func main() {
 		os.Exit(exitCodeError)
 	}
 
+	accountsCmd.Usage = printAccountsUsage
 	dividendsCmd.Usage = printDividendsUsage
 	helpCmd.Usage = printHelpUsage
 	ordersCmd.Usage = printOrdersUsage
@@ -71,6 +79,20 @@ func main() {
 	optionsOrdersCmd.Usage = printOptionOrdersUsage
 
 	switch flag.Arg(0) {
+	case "accounts":
+		if err := accountsCmd.Parse(os.Args[2:]); err != nil {
+			logError.Println(err)
+			accountsCmd.Usage()
+			os.Exit(exitCodeError)
+		}
+		doAccounts(arguments{
+			username:        *accountsCmdUsername,
+			pathToTokenFile: *accountsCmdPathTokenFile,
+			verbose:         *accountsCmdVerbose,
+			output:          *accountsCmdOutput,
+			format:          *accountsCmdFormat,
+		})
+		os.Exit(exitCodeError)
 	case "dividends":
 		if err := dividendsCmd.Parse(os.Args[2:]); err != nil {
 			logError.Println(err)

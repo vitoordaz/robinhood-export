@@ -30,6 +30,7 @@ func printUsage() {
 	fmt.Printf("	%s <command> [arguments]\n\n", os.Args[0])
 	fmt.Println(`The commands are:`)
 	fmt.Println()
+	fmt.Println(`	accounts       exports all accounts`)
 	fmt.Println(`	dividends      exports all dividends`)
 	fmt.Println(`	options orders exports all options orders`)
 	fmt.Println(`	orders         exports all orders`)
@@ -40,6 +41,11 @@ func printUsage() {
 
 func printHelpUsage() {
 	fmt.Printf("Usage: %s help <command>\n", os.Args[0])
+}
+
+func printAccountsUsage() {
+	fmt.Printf("Usage: %s accounts [arguments]\n", os.Args[0])
+	accountsCmd.PrintDefaults()
 }
 
 func printDividendsUsage() {
