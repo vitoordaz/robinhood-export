@@ -92,7 +92,7 @@ func main() {
 			output:          *accountsCmdOutput,
 			format:          *accountsCmdFormat,
 		})
-		os.Exit(exitCodeError)
+		os.Exit(exitCodeOk)
 	case "dividends":
 		if err := dividendsCmd.Parse(os.Args[2:]); err != nil {
 			logError.Println(err)
@@ -106,7 +106,7 @@ func main() {
 			output:          *dividendsCmdOutput,
 			format:          *dividendsCmdFormat,
 		})
-		os.Exit(exitCodeError)
+		os.Exit(exitCodeOk)
 	case "help":
 		if err := helpCmd.Parse(os.Args[2:]); err != nil || len(helpCmd.Args()) < 1 {
 			if err != nil {
