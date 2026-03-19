@@ -2,6 +2,7 @@ package robinhood
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -146,11 +147,10 @@ func isURL(v string) bool {
 
 func handleResponse[T any](resp *resty.Response) (*T, error) {
 	if resp.IsError() {
-		err, ok := resp.Error().(error)
-		if ok {
+		if err, ok := resp.Error().(error); ok {
 			return nil, err
 		}
-		return nil, fmt.Errorf("invalid error type: %s", reflect.TypeOf(resp.Error()))
+		return nil, errors.New(resp.String())
 	}
 	result, ok := resp.Result().(*T)
 	if ok {
