@@ -40,6 +40,18 @@ var (
 	dividendsCmdVerbose       = dividendsCmd.Bool("v", false, "enable verbose messages.")            // optional
 	dividendsCmdFormat        = dividendsCmd.String("f", "json", "output format, json or csv.")      // optional
 
+	instrumentsCmd        = flag.NewFlagSet("instruments", flag.ExitOnError)
+	instrumentsCmdOutput  = instrumentsCmd.String("o", "", "path to output file.")            // optional
+	instrumentsCmdVerbose = instrumentsCmd.Bool("v", false, "enable verbose messages.")       // optional
+	instrumentsCmdFormat  = instrumentsCmd.String("f", "json", "output format, json or csv.") // optional
+
+	optionsOrdersCmd              = flag.NewFlagSet("options orders", flag.ExitOnError)
+	optionsOrdersCmdUsername      = optionsOrdersCmd.String("u", "", "Robinhood account username or email.") // optional
+	optionsOrdersCmdPathTokenFile = optionsOrdersCmd.String("t", "", "path to token file")                   // optional
+	optionsOrdersCmdOutput        = optionsOrdersCmd.String("o", "", "path to output file.")                 // optional
+	optionsOrdersCmdVerbose       = optionsOrdersCmd.Bool("v", false, "enable verbose messages.")            // optional
+	optionsOrdersCmdFormat        = optionsOrdersCmd.String("f", "json", "output format, json or csv.")      // optional
+
 	ordersCmd              = flag.NewFlagSet("orders", flag.ExitOnError)
 	ordersCmdUsername      = ordersCmd.String("u", "", "Robinhood account username or email.") // optional
 	ordersCmdPathTokenFile = ordersCmd.String("t", "", "path to token file")                   // optional
@@ -54,13 +66,6 @@ var (
 	positionsCmdAll           = positionsCmd.Bool("a", false, "return all positions (even closed).") // optional
 	positionsCmdVerbose       = positionsCmd.Bool("v", false, "enable verbose messages.")            // optional
 	positionsCmdFormat        = positionsCmd.String("f", "json", "output format, json or csv.")      // optional
-
-	optionsOrdersCmd              = flag.NewFlagSet("options orders", flag.ExitOnError)
-	optionsOrdersCmdUsername      = optionsOrdersCmd.String("u", "", "Robinhood account username or email.") // optional
-	optionsOrdersCmdPathTokenFile = optionsOrdersCmd.String("t", "", "path to token file")                   // optional
-	optionsOrdersCmdOutput        = optionsOrdersCmd.String("o", "", "path to output file.")                 // optional
-	optionsOrdersCmdVerbose       = optionsOrdersCmd.Bool("v", false, "enable verbose messages.")            // optional
-	optionsOrdersCmdFormat        = optionsOrdersCmd.String("f", "json", "output format, json or csv.")      // optional
 )
 
 func main() {
@@ -105,6 +110,18 @@ func main() {
 			verbose:         *dividendsCmdVerbose,
 			output:          *dividendsCmdOutput,
 			format:          *dividendsCmdFormat,
+		})
+		os.Exit(exitCodeOk)
+	case "instruments":
+		if err := instrumentsCmd.Parse(os.Args[2:]); err != nil {
+			logError.Println(err)
+			instrumentsCmd.Usage()
+			os.Exit(exitCodeError)
+		}
+		doInstruments(arguments{
+			verbose: *instrumentsCmdVerbose,
+			output:  *instrumentsCmdOutput,
+			format:  *instrumentsCmdFormat,
 		})
 		os.Exit(exitCodeOk)
 	case "help":

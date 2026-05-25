@@ -22,6 +22,7 @@ type Client interface {
 	ListAccounts(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Account], error)
 	GetAccount(ctx context.Context, auth *ResponseToken, id string) (*Account, error)
 	GetDividends(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Dividend], error)
+	ListInstruments(ctx context.Context, cursor string) (*ResponseList[*Instrument], error)
 	GetInstrument(ctx context.Context, id string) (*Instrument, error)
 	GetItems(
 		ctx context.Context,
@@ -122,8 +123,12 @@ func (dc *defaultClient) GetPositions(
 	return doList[ResponseList[*Position]](ctx, dc.c, auth, EndpointPositions, cursor)
 }
 
+func (dc *defaultClient) ListInstruments(ctx context.Context, cursor string) (*ResponseList[*Instrument], error) {
+	return doList[ResponseList[*Instrument]](ctx, dc.c, nil, EndpointInstruments, cursor)
+}
+
 func (dc *defaultClient) GetInstrument(ctx context.Context, id string) (*Instrument, error) {
-	return doGet[Instrument](ctx, dc.c, nil, getDetailURL(EndpointInstrument, id))
+	return doGet[Instrument](ctx, dc.c, nil, getDetailURL(EndpointInstruments, id))
 }
 
 func getDetailURL(prefix, id string) string {

@@ -9,14 +9,15 @@ type MockClient struct {
 		auth *ResponseToken,
 		cursor string,
 	) (*ResponseList[map[string]any], error)
-	ListAccountsFunc  func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Account], error)
-	GetAccountFunc    func(ctx context.Context, auth *ResponseToken, id string) (*Account, error)
-	GetDividendsFunc  func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Dividend], error)
-	GetInstrumentFunc func(ctx context.Context, id string) (*Instrument, error)
-	GetMarketFunc     func(ctx context.Context, id string) (*Market, error)
-	GetOrdersFunc     func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error)
-	GetPositionsFunc  func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Position], error)
-	GetTokenFunc      func(ctx context.Context, username, password, mfa string) (*ResponseToken, error)
+	ListAccountsFunc    func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Account], error)
+	GetAccountFunc      func(ctx context.Context, auth *ResponseToken, id string) (*Account, error)
+	GetDividendsFunc    func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Dividend], error)
+	ListInstrumentsFunc func(ctx context.Context, cursor string) (*ResponseList[*Instrument], error)
+	GetInstrumentFunc   func(ctx context.Context, id string) (*Instrument, error)
+	GetMarketFunc       func(ctx context.Context, id string) (*Market, error)
+	GetOrdersFunc       func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Order], error)
+	GetPositionsFunc    func(ctx context.Context, auth *ResponseToken, cursor string) (*ResponseList[*Position], error)
+	GetTokenFunc        func(ctx context.Context, username, password, mfa string) (*ResponseToken, error)
 }
 
 func (c *MockClient) GetItems(
@@ -58,6 +59,13 @@ func (c *MockClient) GetDividends(
 		return c.GetDividendsFunc(ctx, auth, cursor)
 	}
 	return &ResponseList[*Dividend]{}, nil
+}
+
+func (c *MockClient) ListInstruments(ctx context.Context, cursor string) (*ResponseList[*Instrument], error) {
+	if c.ListInstrumentsFunc != nil {
+		return c.ListInstrumentsFunc(ctx, cursor)
+	}
+	return &ResponseList[*Instrument]{}, nil
 }
 
 func (c *MockClient) GetInstrument(ctx context.Context, id string) (*Instrument, error) {

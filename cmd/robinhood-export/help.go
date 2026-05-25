@@ -32,6 +32,7 @@ func printUsage() {
 	fmt.Println()
 	fmt.Println(`	accounts       exports all accounts`)
 	fmt.Println(`	dividends      exports all dividends`)
+	fmt.Println(`	instruments    exports all instruments`)
 	fmt.Println(`	options orders exports all options orders`)
 	fmt.Println(`	orders         exports all orders`)
 	fmt.Println(`	positions      exports all positions`)

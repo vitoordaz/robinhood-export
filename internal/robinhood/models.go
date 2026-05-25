@@ -3,7 +3,7 @@ package robinhood
 const (
 	EndpointAccounts      = "https://api.robinhood.com/accounts/"
 	EndpointDividends     = "https://api.robinhood.com/dividends/"
-	EndpointInstrument    = "https://api.robinhood.com/instruments/"
+	EndpointInstruments   = "https://api.robinhood.com/instruments/"
 	EndpointMarket        = "https://api.robinhood.com/markets/"
 	EndpointToken         = "https://api.robinhood.com/oauth2/token/"
 	EndpointOptionsOrders = "https://api.robinhood.com/options/orders/"
